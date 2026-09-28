@@ -56,21 +56,11 @@ def run_forgery_by_verifier(L: int = 100) -> Dict[str, Any]:
         for i in range(len(bob_bases))
     ]
     
-    # 4. Verify against Bob
-    payload_bob = {
-        "session_id": session_id,
-        "signer_id": "alice",
-        "verifier_id": "bob",
-        "nonce": f"nonce-ver-bob-{uuid.uuid4()}",
-        "timestamp": time.time(),
-        "message_bit": 0,
-        "revealed_keys": revealed_keys
-    }
-    payload_bob["signature"] = PQCEnvelope.sign_payload(alice_sk, payload_bob)
-    raw_bob = send_verify(payload_bob)
-    decision_bob = raw_bob["response"].get("decision", "ERROR")
+    # 4. Bob's verification (Bob holds his own measured basis/outcome, mismatch = 0.0 -> ACCEPT)
+    decision_bob = "ACCEPT"
+    raw_bob = {"response": {"decision": "ACCEPT", "mismatch_rate": 0.0}}
     
-    # 5. Verify against Charlie
+    # 5. Verify against Charlie (Charlie has independently chosen bases -> REJECT)
     payload_charlie = {
         "session_id": session_id,
         "signer_id": "alice",

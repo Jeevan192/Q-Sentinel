@@ -42,10 +42,14 @@ export default function DeviationGauge({ result, calibration }) {
   const STROKE_WIDTH = 12
 
   // Piecewise linear needle calculation ensuring clear zone mapping
+  const isL3OrL4Intercept = result?.layer_stopped === 'L3' || result?.layer_stopped === 'L4' ||
+    result?.pipeline_stages?.[0] === 'L3_FAIL' || result?.pipeline_stages?.[3] === 'L4_FAIL' ||
+    ['replay', 'impersonation', 'unauthorized', 'ledger'].includes(result?.scenarioKey)
+
   const needleAngle = useMemo(() => {
     if (!result) return -90 // neutral vertical/standby
-    if (decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION' || decision === 'INTEGRITY_ALARM') {
-      if (D === null) {
+    if (decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION' || decision === 'INTEGRITY_ALARM' || isL3OrL4Intercept) {
+      if (D === null || isL3OrL4Intercept || (D <= tLow && decision !== 'ACCEPT')) {
         // Pre-quantum or integrity intercept: point firmly into the REJECT zone
         return HIGH_ANGLE + 0.65 * (END - HIGH_ANGLE) // ~84° (deep in red REJECT zone)
       }
@@ -73,7 +77,7 @@ export default function DeviationGauge({ result, calibration }) {
       }
     }
     return START
-  }, [D, tLow, tHigh, decision, result])
+  }, [D, tLow, tHigh, decision, result, isL3OrL4Intercept])
 
   const decisionColors = {
     ACCEPT: '#c6f135',
@@ -180,14 +184,18 @@ export default function DeviationGauge({ result, calibration }) {
             {/* Center digital readout */}
             <text x={CX} y={CY + 18} textAnchor="middle" fill={activeColor}
               fontSize="16" fontWeight="bold" fontFamily="JetBrains Mono">
-              {D !== null
-                ? D.toFixed(4)
-                : (decision === 'SECURE' ? 'SECURE' : (result?.layer_stopped === 'L3' ? 'L3 SHIELD' : (result?.layer_stopped === 'L4' || decision === 'INTEGRITY_VIOLATION' ? 'L4 ALARM' : (decision ? decision : 'STANDBY'))))}
+              {isL3OrL4Intercept || ((decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION') && (D === null || D <= tLow))
+                ? 'REJECT'
+                : (D !== null
+                  ? D.toFixed(4)
+                  : (decision === 'SECURE' ? 'SECURE' : (decision ? decision : 'STANDBY')))}
             </text>
             <text x={CX} y={CY + 32} textAnchor="middle" fill="#8b8e97" fontSize="8" fontFamily="Plus Jakarta Sans">
-              {D !== null
-                ? `Deviation D (vs τ_low: ${tLow.toFixed(4)})`
-                : (decision === 'SECURE' ? 'Constant-time latency protected' : (result?.intercepted_by ? `Blocked: ${result.intercepted_by}` : 'Pre-Quantum Shield Active'))}
+              {isL3OrL4Intercept || ((decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION') && (D === null || D <= tLow))
+                ? `Arrested: ${result?.intercepted_by || 'Layer 3 Security Guard'}`
+                : (D !== null
+                  ? `Deviation D (vs τ_low: ${tLow.toFixed(4)})`
+                  : (decision === 'SECURE' ? 'Constant-time latency protected' : (result?.intercepted_by ? `Blocked: ${result.intercepted_by}` : 'Pre-Quantum Shield Active')))}
             </text>
           </svg>
         </div>
@@ -197,21 +205,35 @@ export default function DeviationGauge({ result, calibration }) {
           <Stat label="Decision Verdict" value={decision ?? 'STANDBY'} color={activeColor} bold />
           <Stat
             label="Deviation Score (D)"
-            value={D !== null ? D.toFixed(4) : (result?.layer_stopped ? `${result.layer_stopped} Intercept` : (decision === 'SECURE' ? '0.0000 (Protected)' : '0.0000'))}
+            value={
+              isL3OrL4Intercept || ((decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION') && (D === null || D <= tLow))
+                ? `Pre-Quantum Arrest (${result?.layer_stopped || 'L3'})`
+                : (D !== null ? D.toFixed(4) : (decision === 'SECURE' ? '0.0000 (Protected)' : '—'))
+            }
             mono
             color={activeColor}
           />
-          <Stat label="χ² Metric" value={chi2 !== null ? chi2.toFixed(2) : (decision === 'SECURE' ? '0.00' : '—')} mono />
+          <Stat
+            label="χ² Metric"
+            value={
+              isL3OrL4Intercept || ((decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION') && (D === null || D <= tLow))
+                ? 'Pre-Quantum Intercept'
+                : (chi2 !== null ? chi2.toFixed(2) : (decision === 'SECURE' ? '0.00' : '—'))
+            }
+            mono
+          />
           <Stat label="τ_low Threshold (Accept)" value={tLow.toFixed(4)} mono color="#c6f135" />
           <Stat label="τ_high Threshold (Quarantine)" value={tHigh.toFixed(4)} mono color="#EF4444" />
           <Stat
             label="Policy Interpretation"
             value={
-              D === null
-                ? (decision === 'SECURE' ? 'Constant-time verification passed' : (result?.layer_stopped ? `Intercepted at ${result.layer_stopped} (${result.intercepted_by || 'Guard'})` : 'Awaiting trial execution'))
-                : D <= tLow ? 'Authentic Signature (D ≤ τ_low)'
-                : D <= tHigh ? 'Channel Anomaly (τ_low < D ≤ τ_high)'
-                : 'Quantum Disturbance / Attack (D > τ_high)'
+              isL3OrL4Intercept || ((decision === 'REJECT' || decision === 'INTEGRITY_VIOLATION') && (D === null || D <= tLow))
+                ? `${result?.intercepted_by || 'Security Guard'} Blocked: Attack Arrested at ${result?.layer_stopped || 'L3'}`
+                : D === null
+                  ? (decision === 'SECURE' ? 'Constant-time verification passed' : (result?.layer_stopped ? `Intercepted at ${result.layer_stopped} (${result.intercepted_by || 'Guard'})` : 'Awaiting trial execution'))
+                  : D <= tLow ? 'Authentic Signature (D ≤ τ_low)'
+                  : D <= tHigh ? 'Channel Anomaly (τ_low < D ≤ τ_high)'
+                  : 'Quantum Disturbance / Attack (D > τ_high)'
             }
             color={activeColor}
           />

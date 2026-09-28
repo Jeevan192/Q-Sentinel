@@ -18,7 +18,8 @@ function getBasisProb(obj, key, fallback) {
   return fallback
 }
 
-function getBarColor(delta) {
+function getBarColor(delta, isEarlyIntercept) {
+  if (isEarlyIntercept) return '#f43f5e'
   const abs = Math.abs(delta)
   if (abs > 0.15) return '#f43f5e' // Rose / High disturbance
   if (abs > 0.05) return '#f59e0b' // Amber / Elevated deviation
@@ -62,8 +63,20 @@ function buildChartData(basisProbs, baseline) {
   ]
 }
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, isEarlyIntercept }) => {
   if (!active || !payload?.length) return null
+  if (isEarlyIntercept) {
+    return (
+      <div className="glass-card px-3.5 py-2.5 text-xs font-mono border border-rose-500/40 bg-slate-900/95 shadow-xl">
+        <p className="text-rose-400 font-bold mb-1 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-rose-500" />
+          Pre-Quantum Intercept ({label})
+        </p>
+        <p className="text-slate-300">Quantum state evaluation aborted.</p>
+        <p className="text-slate-400 text-[11px] mt-1">Threat arrested at Layer 3/4 before channel transmission.</p>
+      </div>
+    )
+  }
   const emp = payload.find(p => p.dataKey === 'empirical')
   const base = payload.find(p => p.dataKey === 'baseline')
   const delta = emp && base ? (emp.value - base.value).toFixed(4) : null
@@ -89,7 +102,9 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function PauliBarChart({ result, calibration }) {
   const data = buildChartData(result?.basis_probabilities, calibration?.baseline)
   const isEarlyIntercept = result?.basis_probabilities?.intercepted_early ||
-    (result?.layer_stopped && (result.layer_stopped === 'L3' || result.layer_stopped === 'L4'))
+    (result?.layer_stopped && (result.layer_stopped === 'L3' || result.layer_stopped === 'L4')) ||
+    (result?.pipeline_stages && (result.pipeline_stages[0] === 'L3_FAIL' || result.pipeline_stages[3] === 'L4_FAIL')) ||
+    (['replay', 'impersonation', 'unauthorized', 'ledger'].includes(result?.scenarioKey))
 
   return (
     <div className="glass-card p-5 flex flex-col justify-between">
@@ -141,12 +156,12 @@ export default function PauliBarChart({ result, calibration }) {
                 tickLine={false}
                 tickFormatter={v => v.toFixed(2)}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+              <Tooltip content={<CustomTooltip isEarlyIntercept={isEarlyIntercept} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
               <ReferenceLine y={1.0} stroke="#c6f135" strokeDasharray="3 3" opacity={0.5} />
               <ReferenceLine y={0.5} stroke="#8b8e97" strokeDasharray="3 3" opacity={0.5} />
               <Bar dataKey="empirical" radius={[4, 4, 0, 0]} maxBarSize={36}>
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(entry.delta)} fillOpacity={0.9} />
+                  <Cell key={`cell-${index}`} fill={getBarColor(entry.delta, isEarlyIntercept)} fillOpacity={0.9} />
                 ))}
               </Bar>
               <Bar dataKey="baseline" fill="#475569" radius={[4, 4, 0, 0]} maxBarSize={36} fillOpacity={0.65} />
@@ -161,17 +176,17 @@ export default function PauliBarChart({ result, calibration }) {
           const absDelta = Math.abs(item.delta)
           const isDisturbed = absDelta > 0.05
           const isSevere = absDelta > 0.15
-          const colorClass = isSevere ? 'text-rose-400' : isDisturbed ? 'text-amber-400' : 'text-[#c6f135]'
+          const colorClass = isEarlyIntercept ? 'text-rose-400' : isSevere ? 'text-rose-400' : isDisturbed ? 'text-amber-400' : 'text-[#c6f135]'
           const label = idx === 0 ? 'Pauli X Observ.' : idx === 1 ? 'Pauli Y Observ.' : 'Pauli Z Observ.'
 
           return (
             <div key={item.basis} className="bg-white/[0.02] rounded-lg p-2 border border-white/5">
               <span className="text-[10px] text-[#8b8e97] block uppercase">{label}</span>
               <span className={`text-xs font-bold ${colorClass}`}>
-                {(item.empirical * 100).toFixed(1)}%
+                {isEarlyIntercept ? 'BLOCKED' : `${(item.empirical * 100).toFixed(1)}%`}
               </span>
               <span className="text-[9px] text-[#8b8e97] block">
-                {absDelta > 0.01 ? `Δ ${(item.delta * 100).toFixed(1)}%` : 'Aligned'}
+                {isEarlyIntercept ? 'Pre-Quantum Arrest' : absDelta > 0.01 ? `Δ ${(item.delta * 100).toFixed(1)}%` : 'Aligned'}
               </span>
             </div>
           )

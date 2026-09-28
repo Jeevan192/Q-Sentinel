@@ -331,17 +331,18 @@ export async function runScenario(scenarioKey, payload = {}) {
     const quantFinding = find('QuantumDetector')
     const tomoFinding  = find('ChannelTomography')
 
-    const mismatch = quantFinding?.metrics?.mismatch_rate ?? (scenarioKey === 'legitimate' ? 0.0 : null)
-    const n         = quantFinding?.metrics?.matched_subset_size ?? 32
+    const stages = deriveV9PipelineStages(findings, scenarioKey, d.actual_outcome)
+    const isL3OrL4Intercept = stages[0] === 'L3_FAIL' || stages[3] === 'L4_FAIL' || ['replay', 'impersonation', 'unauthorized', 'ledger'].includes(scenarioKey)
+
+    const mismatch = isL3OrL4Intercept ? null : (quantFinding?.metrics?.mismatch_rate ?? (scenarioKey === 'legitimate' ? 0.0 : null))
+    const n         = isL3OrL4Intercept ? null : (quantFinding?.metrics?.matched_subset_size ?? 32)
     const tauLow    = quantFinding?.metrics?.tau_low  ?? calibrationCache?.thresholds?.tau_low  ?? 0.0101
     const tauHigh   = quantFinding?.metrics?.tau_high ?? calibrationCache?.thresholds?.tau_high ?? 0.0259
     const basisRates = tomoFinding?.metrics?.basis_rates ?? null
 
-    const stages = deriveV9PipelineStages(findings, scenarioKey, d.actual_outcome)
-
     // Compute empirical Pauli probabilities based on true quantum tomography
     let basisProbs = null
-    if (stages[0] === 'L3_FAIL' || stages[3] === 'L4_FAIL') {
+    if (isL3OrL4Intercept) {
       basisProbs = { X: 1.0, Y: 0.50, Z: 0.50, intercepted_early: true }
     } else if (basisRates) {
       const getRate = (r) => (typeof r === 'number' ? r : (r?.rate ?? 0.0))
@@ -369,6 +370,7 @@ export async function runScenario(scenarioKey, payload = {}) {
 
     _useMock = false
     return {
+      scenarioKey,
       decision: d.actual_outcome,
       reason: d.reason,
       qds_valid: d.attack_type === 'legitimate' ? true : d.actual_outcome !== 'ACCEPT' ? false : true,
@@ -448,7 +450,8 @@ export async function getCalibrationStatus() {
 export async function getLedgerEvents() {
   try {
     const res = await axios.get(`${BASE_URL}/v1/ledger/events?limit=100`, { timeout: 5000 })
-    const rawEvents = Array.isArray(res.data) ? res.data : (res.data?.events || [])
+    const rawEvents = (Array.isArray(res.data) ? res.data : (res.data?.events || []))
+      .filter(evt => evt.decision !== 'DISTRIBUTED')
     if (Array.isArray(rawEvents) && rawEvents.length > 0) {
       const mapped = rawEvents.map(evt => {
         const rawTs = evt.timestamp

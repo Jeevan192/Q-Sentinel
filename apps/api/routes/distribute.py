@@ -81,17 +81,6 @@ def distribute_qds(req: DistributeRequest, request: Request):
         )
         global_session_store.store_verifier_outcomes(req.session_id, v_id, bob_bases, bob_outcomes)
 
-    # 6. Record channel setting in evidence ledger for this distribution event
-    dist_event_data = {
-        "timestamp": created_at,
-        "session_id": req.session_id,
-        "signer_id": req.signer_id,
-        "verifier_id": ",".join(req.verifiers),
-        "decision": "DISTRIBUTED",
-        "findings": [{"event": "distribute", "channel_config": channel_cfg, "L": req.L}],
-    }
-    global_ledger.record_event(dist_event_data)
-
     return DistributeResponse(
         status="DISTRIBUTED",
         session_id=req.session_id,
