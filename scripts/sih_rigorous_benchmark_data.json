@@ -1,0 +1,357 @@
+{
+  "metadata": {
+    "timestamp": "2026-09-28T17:34:31Z",
+    "evaluation_engine": "Q-SENTINEL Live Physics Simulation & Cryptographic Core",
+    "evaluator_target": "SIH26141",
+    "quantum_simulation": "Qiskit AerSimulator (live physics-based software simulation)",
+    "signature_scheme": "ML-DSA-65 (NIST FIPS 204)",
+    "ledger_backend": "SQLite HMAC-SHA256 authenticated hash chain",
+    "total_protocol_events_evaluated": 1120
+  },
+  "phase1_calibration": {
+    "trials": 300,
+    "L": 90,
+    "configured_disturbance": 0.02,
+    "calibration_time_s": 40.61,
+    "e_honest": {
+      "mean": 0.01575,
+      "median": 0.0,
+      "std_dev": 0.0246,
+      "variance": 0.0006053,
+      "standard_error": 0.00142,
+      "ci_95": [
+        0.01297,
+        0.01853
+      ],
+      "ci_99": [
+        0.01209,
+        0.01941
+      ],
+      "min": 0.0,
+      "max": 0.13793,
+      "quantiles": {
+        "p25": 0.0,
+        "p50": 0.0,
+        "p75": 0.03125,
+        "p90": 0.04226,
+        "p95": 0.06462,
+        "p99": 0.0954
+      }
+    },
+    "matched_subset_n": {
+      "mean": 30.0,
+      "std_dev": 4.58,
+      "min": 17,
+      "max": 42
+    }
+  },
+  "phase2_binomial_validation": {
+    "dispersion_index": 1.0835,
+    "observed_var_K": 0.5039,
+    "expected_var_K": 0.4651,
+    "chi2_stat": 2.3238,
+    "chi2_p_value": 0.6764,
+    "autocorrelation_lag1": -0.001,
+    "autocorrelation_p_value": 0.9863,
+    "model_assessment": "Binomial(n, e_honest) is statistically adequate",
+    "bins_observed": [
+      192,
+      81,
+      23,
+      3,
+      1
+    ],
+    "bins_expected": [
+      186.3,
+      89.5,
+      20.8,
+      3.1,
+      0.4
+    ]
+  },
+  "phase3_threshold_derivation": {
+    "n_evaluated": 30,
+    "e_honest_used": 0.01575,
+    "target_alpha": 0.0001,
+    "k_low": 4,
+    "k_high": 6,
+    "tau_low": 0.13333,
+    "tau_high": 0.2,
+    "model_tail_prob_tau_low": 9.9417209649455e-05,
+    "model_tail_prob_tau_high": 3.5598377601253617e-07,
+    "sub_k_tail_prob_check": 0.0012154913586456262
+  },
+  "phase4_dataset_a_clean": {
+    "trials": 300,
+    "outcomes": {
+      "ACCEPT": 300,
+      "QUARANTINE": 0,
+      "REJECT": 0
+    },
+    "acceptance_rate": 1.0,
+    "acceptance_ci_95": [
+      0.9874,
+      1.0
+    ],
+    "empirical_frr": 0.0,
+    "frr_ci_95": [
+      0.0,
+      0.0126
+    ],
+    "mean_mismatch_D": 0.0,
+    "mean_latency_ms": 129.59
+  },
+  "phase5_dataset_b_degraded": {
+    "p_0.05": {
+      "disturbance_p": 0.05,
+      "trials": 30,
+      "mean_D": 0.0519,
+      "outcomes": {
+        "ACCEPT": 29,
+        "QUARANTINE": 1,
+        "REJECT": 0
+      },
+      "pct_accept": 96.7,
+      "pct_quarantine": 3.3,
+      "pct_reject": 0.0
+    },
+    "p_0.1": {
+      "disturbance_p": 0.1,
+      "trials": 30,
+      "mean_D": 0.0798,
+      "outcomes": {
+        "ACCEPT": 27,
+        "QUARANTINE": 3,
+        "REJECT": 0
+      },
+      "pct_accept": 90.0,
+      "pct_quarantine": 10.0,
+      "pct_reject": 0.0
+    },
+    "p_0.18": {
+      "disturbance_p": 0.18,
+      "trials": 30,
+      "mean_D": 0.1432,
+      "outcomes": {
+        "ACCEPT": 11,
+        "QUARANTINE": 14,
+        "REJECT": 5
+      },
+      "pct_accept": 36.7,
+      "pct_quarantine": 46.7,
+      "pct_reject": 16.7
+    },
+    "p_0.28": {
+      "disturbance_p": 0.28,
+      "trials": 30,
+      "mean_D": 0.1923,
+      "outcomes": {
+        "ACCEPT": 7,
+        "QUARANTINE": 12,
+        "REJECT": 11
+      },
+      "pct_accept": 23.3,
+      "pct_quarantine": 40.0,
+      "pct_reject": 36.7
+    }
+  },
+  "phase6_dataset_c_quantum_attacks": {
+    "quantum_forgery": {
+      "trials": 30,
+      "TP": 30,
+      "FN": 0,
+      "detection_rate": 1.0,
+      "ci_95": [
+        0.8865,
+        1.0
+      ],
+      "mean_latency_ms": 332.95,
+      "mean_mismatch_D": 0.3439,
+      "layer": "L2 (StatisticalProbe)"
+    },
+    "adaptive_x_rotation": {
+      "trials": 30,
+      "TP": 28,
+      "FN": 2,
+      "detection_rate": 0.9333,
+      "ci_95": [
+        0.7868,
+        0.9815
+      ],
+      "mean_latency_ms": 389.85,
+      "layer": "L2 (Pauli Tomography / StatisticalProbe)"
+    },
+    "transferability_forgery": {
+      "trials": 30,
+      "TP": 28,
+      "FN": 2,
+      "detection_rate": 0.9333,
+      "ci_95": [
+        0.7868,
+        0.9815
+      ],
+      "mean_latency_ms": 488.53,
+      "layer": "L2 (Dual-Threshold Transferability Guard)"
+    }
+  },
+  "phase7_dataset_d_conventional_attacks": {
+    "replay": {
+      "trials": 30,
+      "TP": 30,
+      "FN": 0,
+      "detection_rate": 1.0,
+      "ci_95": [
+        0.8865,
+        1.0
+      ],
+      "mean_latency_ms": 345.6,
+      "median_latency_ms": 339.86,
+      "p95_latency_ms": 401.47,
+      "layer": "L3 (NonceGuard)"
+    },
+    "impersonation": {
+      "trials": 30,
+      "TP": 30,
+      "FN": 0,
+      "detection_rate": 1.0,
+      "ci_95": [
+        0.8865,
+        1.0
+      ],
+      "mean_latency_ms": 296.75,
+      "median_latency_ms": 286.84,
+      "p95_latency_ms": 345.25,
+      "layer": "L3 (IdentityGuard ML-DSA-65)"
+    },
+    "unauthorized": {
+      "trials": 30,
+      "TP": 30,
+      "FN": 0,
+      "detection_rate": 1.0,
+      "ci_95": [
+        0.8865,
+        1.0
+      ],
+      "mean_latency_ms": 293.78,
+      "median_latency_ms": 283.42,
+      "p95_latency_ms": 377.06,
+      "layer": "L3 (AuthorizationGuard)"
+    }
+  },
+  "phase8_dataset_e_ledger_audit": {
+    "total_records_verified": 1719,
+    "full_audit_latency_ms": 32.83,
+    "per_record_latency_us": 19.1,
+    "tamper_trials_tested": 20,
+    "tamper_detected_count": 20,
+    "tamper_detection_rate": 1.0,
+    "ci_95": [
+      0.8389,
+      1.0
+    ]
+  },
+  "phase9_dataset_f_timing_side_channel": {
+    "trials_per_condition": 50,
+    "early_reject": {
+      "mean_ms": 51.37,
+      "median_ms": 47.88,
+      "variance_ms2": 207.65,
+      "std_dev_ms": 14.41,
+      "p95_ms": 57.86
+    },
+    "full_verify": {
+      "mean_ms": 293.25,
+      "median_ms": 283.12,
+      "variance_ms2": 978.25,
+      "std_dev_ms": 31.28,
+      "p95_ms": 349.82
+    },
+    "delta_mean_ms": 241.88,
+    "welch_t_stat": -49.6669,
+    "welch_p_value": 0.0,
+    "cohen_d_effect_size": 9.9334,
+    "ks_stat": 1.0,
+    "ks_p_value": 0.0
+  },
+  "phase10_blind_evaluation_100": {
+    "batch_size": 100,
+    "confusion_matrix": {
+      "TP": 86,
+      "TN": 5,
+      "FP": 8,
+      "FN": 1
+    },
+    "metrics": {
+      "accuracy": 0.91,
+      "balanced_accuracy": 0.6865,
+      "recall_sensitivity": 0.9885,
+      "recall_ci_95": [
+        0.9377,
+        0.998
+      ],
+      "specificity": 0.3846,
+      "specificity_ci_95": [
+        0.1771,
+        0.6448
+      ],
+      "precision": 0.9149,
+      "precision_ci_95": [
+        0.841,
+        0.9562
+      ],
+      "f1_score": 0.9503,
+      "false_positive_rate": 0.6154,
+      "false_negative_rate": 0.0115
+    },
+    "breakdown": {
+      "honest": {
+        "total": 13,
+        "ACCEPT": 5,
+        "QUARANTINE": 3,
+        "REJECT": 5
+      },
+      "impersonation": {
+        "total": 13,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 13
+      },
+      "unauthorized_verifier": {
+        "total": 13,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 13
+      },
+      "replay": {
+        "total": 13,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 13
+      },
+      "double_consumption": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 12
+      },
+      "channel_noise": {
+        "total": 12,
+        "ACCEPT": 1,
+        "QUARANTINE": 5,
+        "REJECT": 6
+      },
+      "signature_forgery": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 12
+      },
+      "quantum_forgery": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 2,
+        "REJECT": 10
+      }
+    }
+  }
+}

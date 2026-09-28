@@ -1,12 +1,15 @@
 {
-  "tau_low": 0.09375,
-  "tau_high": 0.15625,
-  "version": "analytical_v92",
+  "tau_low": 0.13333333333333333,
+  "tau_high": 0.2,
+  "version": "analytical_v92_validated",
   "provenance": {
-    "n": 32,
-    "e_honest": 0.006458333333333332,
+    "n": 30,
+    "e_honest": 0.01575,
     "alpha": 0.0001,
-    "derivation": "binom.ppf",
-    "calibrated_at": 1790615685.17798
+    "k_low": 4,
+    "k_high": 6,
+    "p_exceed_low": 9.9417209649455e-05,
+    "p_exceed_high": 3.5598377601253617e-07,
+    "calibrated_at": 1790616702.5884807
   }
 }
