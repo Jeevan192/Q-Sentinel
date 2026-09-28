@@ -316,8 +316,12 @@ export async function runScenario(scenarioKey, payload = {}) {
 
     if (scenarioKey === 'channel') {
       body = { disturbance: payload?.disturbance_prob ?? +(Math.random() * (0.42 - 0.18) + 0.18).toFixed(2) }
+    } else if (scenarioKey === 'adaptive_x') {
+      body = { disturbance: payload?.disturbance_prob ?? 0.35 }
     } else if (scenarioKey === 'ledger') {
       segment = 'ledger_tamper'
+    } else if (payload && typeof payload === 'object' && Object.keys(payload).length > 0) {
+      body = { ...payload }
     }
 
     const raw = await axios.post(`${BASE_URL}/v1/testbed/attack/${segment}`, body, { timeout: 30000 })
@@ -335,18 +339,23 @@ export async function runScenario(scenarioKey, payload = {}) {
 
     const stages = deriveV9PipelineStages(findings, scenarioKey, d.actual_outcome)
 
-    // Compute empirical Pauli probabilities
+    // Compute empirical Pauli probabilities based on true quantum tomography
     let basisProbs = null
     if (basisRates) {
       const getRate = (r) => (typeof r === 'number' ? r : (r?.rate ?? 0.0))
+      const rX = getRate(basisRates.X)
+      const rY = getRate(basisRates.Y)
+      const rZ = getRate(basisRates.Z)
       basisProbs = {
-        X: Math.max(0.0, Math.min(1.0, 1.0 - getRate(basisRates.X))),
-        Y: +(0.50 + ((getRate(basisRates.Y) - 0.1) * 0.5)).toFixed(3),
-        Z: +(0.50 + ((getRate(basisRates.Z) - 0.1) * 0.5)).toFixed(3),
+        X: +(Math.max(0.0, Math.min(1.0, 1.0 - rX))).toFixed(4),
+        Y: +(Math.min(1.0, Math.max(0.0, 0.50 + rY))).toFixed(4),
+        Z: +(Math.min(1.0, Math.max(0.0, 0.50 + rZ))).toFixed(4),
         outcomes: basisRates,
       }
-    } else if (scenarioKey === 'legitimate') {
+    } else if (scenarioKey === 'legitimate' || scenarioKey === 'timing_oracle') {
       basisProbs = { X: 1.0, Y: 0.50, Z: 0.50 }
+    } else if (stages[0] === 'L3_FAIL' || stages[3] === 'L4_FAIL') {
+      basisProbs = { X: 1.0, Y: 0.50, Z: 0.50, intercepted_early: true }
     }
 
     const primaryRejectedDetector = findings.find(f => f.severity === 'REJECT')?.detector_name

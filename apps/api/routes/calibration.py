@@ -28,6 +28,13 @@ def get_calibration_status():
 
     recal_interval_s = float(os.environ.get("QS_RECAL_INTERVAL_S", "300"))
 
+    # Return calibrated Pauli baseline distributions
+    baseline_mu = baseline_mgr.baseline.get("mu", {
+        "X": {"0": 1.0, "1": 0.0},
+        "Y": {"0": 0.5, "1": 0.5},
+        "Z": {"0": 0.5, "1": 0.5}
+    })
+
     return {
         "baseline_version": effective_version,
         "policy_version": p_ver,
@@ -35,7 +42,8 @@ def get_calibration_status():
         "threshold_high": tau_high,
         "thresholds": (tau_low, tau_high),
         "last_calibrated_at": last_calibrated_at,
-        "recalibration_interval_s": recal_interval_s
+        "recalibration_interval_s": recal_interval_s,
+        "baseline": baseline_mu
     }
 
 @router.post("/reload")

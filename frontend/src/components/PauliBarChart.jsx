@@ -1,7 +1,8 @@
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+  BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine
 } from 'recharts'
+import { ShieldAlert } from 'lucide-react'
 
 // Calibrated reference baseline for the six-state |+⟩ QDS protocol:
 // X-basis projection is 1.0 (|0⟩/|+⟩ eigenstate), Y and Z are unbiased 0.5.
@@ -15,6 +16,13 @@ function getBasisProb(obj, key, fallback) {
     if (obj[key]['1'] !== undefined) return 1.0 - Number(obj[key]['1'])
   }
   return fallback
+}
+
+function getBarColor(delta) {
+  const abs = Math.abs(delta)
+  if (abs > 0.15) return '#f43f5e' // Rose / High disturbance
+  if (abs > 0.05) return '#f59e0b' // Amber / Elevated deviation
+  return '#c6f135' // Lime green / Clean
 }
 
 function buildChartData(basisProbs, baseline) {
@@ -80,9 +88,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 export default function PauliBarChart({ result, calibration }) {
   const data = buildChartData(result?.basis_probabilities, calibration?.baseline)
-  const xItem = data[0]
-  const xDeviation = Math.abs(xItem.delta)
-  const isXDisturbed = xDeviation > 0.05
+  const isEarlyIntercept = result?.basis_probabilities?.intercepted_early ||
+    (result?.layer_stopped && (result.layer_stopped === 'L3' || result.layer_stopped === 'L4'))
 
   return (
     <div className="glass-card p-5 flex flex-col justify-between">
@@ -109,6 +116,13 @@ export default function PauliBarChart({ result, calibration }) {
           </div>
         </div>
 
+        {isEarlyIntercept && (
+          <div className="my-2 px-3 py-1.5 rounded-lg bg-indigo-950/40 border border-indigo-500/30 flex items-center gap-2 text-[11px] text-indigo-300 font-mono">
+            <ShieldAlert size={14} className="text-indigo-400 shrink-0" />
+            <span>Pre-quantum intercept: Threat arrested at {result.layer_stopped || 'L3'} ({result.intercepted_by || 'Security Guard'}) before quantum channel transmission.</span>
+          </div>
+        )}
+
         <div className="h-[210px] w-full mt-2">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} barCategoryGap="25%" barGap={6}>
@@ -130,7 +144,11 @@ export default function PauliBarChart({ result, calibration }) {
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
               <ReferenceLine y={1.0} stroke="#c6f135" strokeDasharray="3 3" opacity={0.5} />
               <ReferenceLine y={0.5} stroke="#8b8e97" strokeDasharray="3 3" opacity={0.5} />
-              <Bar dataKey="empirical" fill="#c6f135" radius={[4, 4, 0, 0]} maxBarSize={36} fillOpacity={0.9} />
+              <Bar dataKey="empirical" radius={[4, 4, 0, 0]} maxBarSize={36}>
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getBarColor(entry.delta)} fillOpacity={0.9} />
+                ))}
+              </Bar>
               <Bar dataKey="baseline" fill="#475569" radius={[4, 4, 0, 0]} maxBarSize={36} fillOpacity={0.65} />
             </BarChart>
           </ResponsiveContainer>
@@ -139,33 +157,25 @@ export default function PauliBarChart({ result, calibration }) {
 
       {/* Real-time Tomography Analysis Pill */}
       <div className="mt-3 pt-3 border-t border-white/5 grid grid-cols-3 gap-2 text-center font-mono">
-        <div className="bg-white/[0.02] rounded-lg p-2 border border-white/5">
-          <span className="text-[10px] text-[#8b8e97] block uppercase">Pauli X Observ.</span>
-          <span className={`text-xs font-bold ${isXDisturbed ? 'text-amber-400' : 'text-[#c6f135]'}`}>
-            {(xItem.empirical * 100).toFixed(1)}%
-          </span>
-          <span className="text-[9px] text-[#8b8e97] block">
-            {isXDisturbed ? `Δ ${(xItem.delta * 100).toFixed(1)}%` : 'Aligned'}
-          </span>
-        </div>
-        <div className="bg-white/[0.02] rounded-lg p-2 border border-white/5">
-          <span className="text-[10px] text-[#8b8e97] block uppercase">Pauli Y Observ.</span>
-          <span className="text-xs font-bold text-slate-200">
-            {(data[1].empirical * 100).toFixed(1)}%
-          </span>
-          <span className="text-[9px] text-[#8b8e97] block">
-            Δ {(data[1].delta * 100).toFixed(1)}%
-          </span>
-        </div>
-        <div className="bg-white/[0.02] rounded-lg p-2 border border-white/5">
-          <span className="text-[10px] text-[#8b8e97] block uppercase">Pauli Z Observ.</span>
-          <span className="text-xs font-bold text-slate-200">
-            {(data[2].empirical * 100).toFixed(1)}%
-          </span>
-          <span className="text-[9px] text-[#8b8e97] block">
-            Δ {(data[2].delta * 100).toFixed(1)}%
-          </span>
-        </div>
+        {data.map((item, idx) => {
+          const absDelta = Math.abs(item.delta)
+          const isDisturbed = absDelta > 0.05
+          const isSevere = absDelta > 0.15
+          const colorClass = isSevere ? 'text-rose-400' : isDisturbed ? 'text-amber-400' : 'text-[#c6f135]'
+          const label = idx === 0 ? 'Pauli X Observ.' : idx === 1 ? 'Pauli Y Observ.' : 'Pauli Z Observ.'
+
+          return (
+            <div key={item.basis} className="bg-white/[0.02] rounded-lg p-2 border border-white/5">
+              <span className="text-[10px] text-[#8b8e97] block uppercase">{label}</span>
+              <span className={`text-xs font-bold ${colorClass}`}>
+                {(item.empirical * 100).toFixed(1)}%
+              </span>
+              <span className="text-[9px] text-[#8b8e97] block">
+                {absDelta > 0.01 ? `Δ ${(item.delta * 100).toFixed(1)}%` : 'Aligned'}
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )

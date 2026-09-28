@@ -14,7 +14,8 @@ LABEL version="9.1.0"
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONPATH=/app
 
 # Create non-root user
 RUN groupadd -r qsentinel && useradd -r -g qsentinel -u 1000 qsentinel

@@ -297,8 +297,9 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         # 7. Constant-time latency analysis
         # Warmup connection
         try:
+            from attacker.config import API_URL
             import urllib.request
-            urllib.request.urlopen("http://localhost:8000/v1/health")
+            urllib.request.urlopen(f"{API_URL}/v1/health", timeout=1.0)
         except Exception:
             pass
 

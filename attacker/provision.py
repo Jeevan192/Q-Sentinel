@@ -4,7 +4,9 @@ Q-SENTINEL Credential Provisioning.
 Generates and saves ML-DSA-65 keypairs for the testbed participants:
 Alice (signer), Bob (verifier 1), Charlie (verifier 2), Mallory (attacker).
 """
+import sys
 import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import json
 from src.security.envelope import PQCEnvelope
 import base64
