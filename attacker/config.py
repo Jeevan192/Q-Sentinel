@@ -6,7 +6,10 @@ so every attack scenario uses the same source of truth.
 """
 import os
 
-API_URL = os.getenv("QSENTINEL_API_URL", "http://localhost:8000")
+# Resolve API_URL: honour QSENTINEL_API_URL first, then infer from
+# Render/Railway's dynamic $PORT, and finally fall back to 8000.
+_port = os.getenv("PORT", "8000")
+API_URL = os.getenv("QSENTINEL_API_URL", f"http://localhost:{_port}")
 DB_PATH = os.getenv("QSENTINEL_DB_PATH", "data/ledger.db")
 
 DEFAULT_SHOTS = int(os.getenv("QSENTINEL_DEFAULT_SHOTS", "1024"))

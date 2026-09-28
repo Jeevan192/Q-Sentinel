@@ -17,8 +17,5 @@ services:
         value: /app/data/nonces.db
       - key: QS_OPERATOR_TOKEN
         generateValue: true
-      # Optional: if you upgrade to Render Starter plan ($7/mo), you can attach a persistent disk:
-      # disk:
-      #   name: qsentinel-data
-      #   mountPath: /app/data
-      #   sizeGB: 1
+      - key: QSENTINEL_SESSION_DB
+        value: /app/data/qsentinel_sessions.db

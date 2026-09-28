@@ -56,6 +56,10 @@ async def _periodic_recalibration_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Ensure testbed attack routes use in-process TestClient on cloud
+    from attacker.client import force_in_process_mode
+    force_in_process_mode()
+
     load_identities()
     from src.detection.policy import global_policy
     if global_policy.get_version() == "uncalibrated" or not os.path.exists("data/calibration/thresholds.json"):

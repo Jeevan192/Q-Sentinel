@@ -11,6 +11,7 @@ import time
 import datetime
 import json
 import random
+import os
 from typing import Optional, List, Dict, Any
 
 from attacker.config import API_URL, DEFAULT_SHOTS
@@ -201,20 +202,30 @@ def get_base_payload(
 
 _api_live_status: Optional[bool] = None
 _test_client_instance = None
+_force_test_client: bool = False
+
+
+def force_in_process_mode():
+    """Force the client to always use in-process TestClient (called at server startup)."""
+    global _force_test_client
+    _force_test_client = True
 
 
 def _check_api_live() -> bool:
-    """Fast check whether an external API server is listening on API_URL."""
+    """Fast check whether an external API server is listening on API_URL.
+    Returns False if we're running inside the FastAPI process (force mode)."""
     global _api_live_status
+    if _force_test_client:
+        return False
     if _api_live_status is not None:
         return _api_live_status
     import socket
     from urllib.parse import urlparse
     parsed = urlparse(API_URL)
     host = parsed.hostname or "localhost"
-    port = parsed.port or 8000
+    port = parsed.port or int(os.environ.get("PORT", "8000"))
     try:
-        s = socket.create_connection((host, port), timeout=0.2)
+        s = socket.create_connection((host, port), timeout=0.5)
         s.close()
         _api_live_status = True
     except (socket.timeout, ConnectionRefusedError, OSError):
@@ -229,6 +240,7 @@ def _get_test_client():
         from fastapi.testclient import TestClient
         _test_client_instance = TestClient(app)
     return _test_client_instance
+
 
 
 def send_verify(payload: dict) -> dict:
