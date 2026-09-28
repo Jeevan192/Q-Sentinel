@@ -447,7 +447,7 @@ export async function getCalibrationStatus() {
 
 export async function getLedgerEvents() {
   try {
-    const res = await axios.get(`${BASE_URL}/v1/ledger/events?limit=50`, { timeout: 5000 })
+    const res = await axios.get(`${BASE_URL}/v1/ledger/events?limit=100`, { timeout: 5000 })
     const rawEvents = Array.isArray(res.data) ? res.data : (res.data?.events || [])
     if (Array.isArray(rawEvents) && rawEvents.length > 0) {
       const mapped = rawEvents.map(evt => {
@@ -460,7 +460,7 @@ export async function getLedgerEvents() {
         }
       })
       // Ensure the MOST RECENT event is at index 0 (descending by seq_num or timestamp)
-      return mapped.sort((a, b) => {
+      const sorted = mapped.sort((a, b) => {
         const seqA = a.seq_num != null ? Number(a.seq_num) : null
         const seqB = b.seq_num != null ? Number(b.seq_num) : null
         if (seqA !== null && seqB !== null) return seqB - seqA
@@ -468,6 +468,8 @@ export async function getLedgerEvents() {
         const tB = typeof b.timestamp === 'number' ? b.timestamp : 0
         return tB - tA
       })
+      sorted.total_records = res.data?.total_records ?? sorted.length
+      return sorted
     }
     return STABLE_FALLBACK_LEDGER
   } catch {

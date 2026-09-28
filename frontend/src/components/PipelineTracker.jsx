@@ -112,6 +112,37 @@ export default function PipelineTracker({ result }) {
         ))}
       </div>
 
+      {result && (
+        <div className="mt-4 pt-4 border-t border-white/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${
+                result.decision === 'ACCEPT' || result.decision === 'SECURE' ? 'bg-[#c6f135]/15 text-[#c6f135] border border-[#c6f135]/30' :
+                result.decision === 'QUARANTINE' ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30' :
+                'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+              }`}>
+                {result.decision}
+              </span>
+              <span className="text-xs font-semibold text-slate-200">
+                Decision Rationale & Pipeline Attribution
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 font-mono leading-relaxed bg-black/40 p-2.5 rounded-lg border border-white/5">
+              {result.reason || (result.decision === 'ACCEPT' ? 'Nominal baseline quantum parameters verified.' : 'Anomalous signature or disturbance intercepted.')}
+            </p>
+          </div>
+          <div className="flex md:flex-col items-end gap-1.5 font-mono text-xs text-[#8b8e97] flex-shrink-0 self-stretch md:self-auto justify-between md:justify-start pt-1 md:pt-0">
+            <div>Latency: <span className="text-white font-semibold">{Math.round(result.latency_ms)} ms</span></div>
+            {result.deviation_score !== null && (
+              <div>Mismatch D: <span className="text-white font-semibold">{Number(result.deviation_score).toFixed(4)}</span></div>
+            )}
+            {result.chi_square !== null && (
+              <div>χ² Divergence: <span className="text-white font-semibold">{Number(result.chi_square).toFixed(1)}</span></div>
+            )}
+          </div>
+        </div>
+      )}
+
       {!result && (
         <p className="text-center text-slate-600 text-xs mt-3 font-mono">
           Run a scenario above to activate telemetry…

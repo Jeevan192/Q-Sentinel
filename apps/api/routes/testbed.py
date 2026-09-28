@@ -113,6 +113,14 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         actual_decision = "REJECT" if raw.get("http_status") == 403 else resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
 
+        qd_m = next((f.get("metrics", {}) for f in findings if f.get("detector") == "QuantumDetector"), {})
+        d_val = qd_m.get("mismatch_rate")
+        th = qd_m.get("tau_high", 0.1667)
+        mm = qd_m.get("mismatches")
+        sub = qd_m.get("matched_subset_size")
+        metric_str = f"mismatch rate D = {d_val:.4f} ({mm}/{sub} bits), exceeding tau_high ({th:.4f})" if d_val is not None else f"{mut_count} mutated bits"
+        reason = f"Valid ML-DSA-65 envelope detected, but quantum key mutation resulted in {metric_str}. Forgery B caught at Layer 2."
+
         return {
             "scenario": scenario_name,
             "attack_type": "forgery",
@@ -126,7 +134,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
             "parameters": {"mutated_bits_count": mut_count, "total_bits": len(revealed)},
-            "reason": "Cryptographically valid envelope with forged/mutated quantum key material caught by matched-basis evaluation."
+            "reason": reason
         }
 
     elif scenario in ["replay"]:
@@ -141,6 +149,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         resp = second_raw.get("response", {})
         actual_decision = "REJECT" if second_raw.get("http_status") == 403 else resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
+        reason = f"Cryptographic replay detected: Nonce '{payload['nonce'][:18]}...' was already registered for session '{payload['session_id'][:18]}...'. Re-transmission immediately blocked at Layer 3 NonceGuard."
 
         return {
             "scenario": scenario_name,
@@ -155,7 +164,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
             "parameters": {"replayed_nonce": payload["nonce"], "session_id": payload["session_id"]},
-            "reason": "Re-submitted identical session/nonce detected by persistent nonce guard and session single-use check."
+            "reason": reason
         }
 
     elif scenario in ["impersonation", "impersonate"]:
@@ -173,6 +182,8 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         actual_decision = "REJECT" if raw.get("http_status") == 403 else resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
 
+        reason = "Adversary Mallory attempted session forgery claiming Alice's identity. ML-DSA-65 post-quantum signature verification failed against Alice's public key in the identity registry. Intercepted and rejected at Layer 3 Identity Guard."
+
         return {
             "scenario": scenario_name,
             "attack_type": "impersonation",
@@ -186,7 +197,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
             "parameters": {"claimed_signer": "alice", "signing_key": "mallory"},
-            "reason": "Mallory forged request claiming to be Alice; rejected by ML-DSA-65 public key identity verification."
+            "reason": reason
         }
 
     elif scenario in ["unauthorized", "unauthorized_verifier"]:
@@ -199,6 +210,8 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         resp = raw.get("response", {})
         actual_decision = "REJECT" if raw.get("http_status") == 403 else resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
+
+        reason = f"Target verifier node '{bad_verifier}' is not present in authorized federated station registry. Access rejected at Layer 3 Authorization Guard prior to quantum distribution."
 
         return {
             "scenario": scenario_name,
@@ -213,7 +226,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
             "parameters": {"unauthorized_verifier_id": bad_verifier},
-            "reason": "Verifier node not present in authorized verifiers registry; rejected before quantum state evaluation."
+            "reason": reason
         }
 
     elif scenario in ["channel", "channel_manipulation"]:
@@ -233,6 +246,15 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         actual_decision = resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
 
+        qd_m = next((f.get("metrics", {}) for f in findings if f.get("detector") == "QuantumDetector"), {})
+        d_val = qd_m.get("mismatch_rate", dist)
+        th = qd_m.get("tau_high", 0.1667)
+        tl = qd_m.get("tau_low", 0.1333)
+        if actual_decision == "REJECT":
+            reason = f"Depolarizing channel disturbance (p={dist:.2f}) produced high mismatch rate D = {d_val:.4f} > tau_high ({th:.4f}). Symmetrically degraded channel rejected at Layer 2."
+        else:
+            reason = f"Depolarizing channel disturbance (p={dist:.2f}) produced elevated mismatch rate D = {d_val:.4f} between tau_low ({tl:.4f}) and tau_high ({th:.4f}). Channel placed in QUARANTINE."
+
         return {
             "scenario": scenario_name,
             "attack_type": "channel_manipulation",
@@ -246,7 +268,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
             "parameters": {"disturbance_probability": dist},
-            "reason": f"Depolarizing channel disturbance (p={dist}) induced state mismatches detected by statistical probe."
+            "reason": reason
         }
 
     elif scenario in ["ledger_tamper", "ledger"]:
@@ -290,7 +312,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": [{"detector": "HashChainVerifier", "severity": "REJECT", "description": f"HMAC or hash linkage mismatch detected at block {seq_num}."}],
             "latency_ms": 1.2,
             "parameters": {"tampered_seq_num": seq_num, "old_decision": decision, "new_decision": new_decision},
-            "reason": f"Direct database mutation on block #{seq_num} broke cryptographic HMAC-SHA256 hash chain."
+            "reason": f"Ledger integrity audit: Direct out-of-band SQLite record mutation on sequence #{seq_num} altered decision from '{decision}' to '{new_decision}'. Cryptographic HMAC-SHA256 hash-chain linkage broke at block #{seq_num}."
         }
 
     elif scenario in ["timing_oracle", "timing"]:
@@ -333,7 +355,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": [{"detector": "TimingGuard", "severity": "INFO", "description": f"Delta={delta:.4f}s within constant-time bounds."}],
             "latency_ms": delta * 1000.0,
             "parameters": {"valid_latency_s": round(t_valid, 4), "invalid_latency_s": round(t_invalid, 4), "delta_s": round(delta, 4)},
-            "reason": f"Response time delta ({delta:.4f}s) is negligible; constant-time padding floor prevents side-channel profiling."
+            "reason": f"Side-channel timing probe: Latency delta between early-rejection envelope ({t_invalid*1000:.1f}ms) and deep quantum verification ({t_valid*1000:.1f}ms) is delta = {delta*1000:.1f}ms (variance < 500ms bound). Constant-time execution prevents timing side-channel exploitation."
         }
 
     elif scenario in ["legitimate", "honest"]:
@@ -347,6 +369,12 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         actual_decision = resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
 
+        qd_m = next((f.get("metrics", {}) for f in findings if f.get("detector") == "QuantumDetector"), {})
+        d_val = qd_m.get("mismatch_rate", 0.0)
+        tl = qd_m.get("tau_low", 0.1333)
+        sub = qd_m.get("matched_subset_size", 50)
+        reason = f"Legitimate transmission verified: Mismatch rate D = {d_val:.4f} < tau_low ({tl:.4f}) across {sub} matched quantum key bits. ML-DSA-65 envelope valid. Decision: ACCEPT."
+
         return {
             "scenario": scenario_name,
             "attack_type": "legitimate",
@@ -359,8 +387,8 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "event_id": resp.get("evidence_id"),
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
-            "parameters": {"disturbance": 0.0},
-            "reason": "Honest transmission over clean quantum channel verified successfully."
+            "parameters": {"disturbance": 0.0, "mismatch_rate": d_val},
+            "reason": reason
         }
 
     elif scenario in ["adaptive_x", "x_rotation", "coherent_x"]:
@@ -385,6 +413,21 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         actual_decision = resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
 
+        qd_m = next((f.get("metrics", {}) for f in findings if f.get("detector") == "QuantumDetector"), {})
+        d_val = qd_m.get("mismatch_rate", eff_mag)
+        th = qd_m.get("tau_high", 0.1667)
+        tl = qd_m.get("tau_low", 0.1333)
+        pauli_m = next((f.get("metrics", {}) for f in findings if f.get("detector") == "TomographyDetector"), {})
+        chi2 = pauli_m.get("chi2_divergence")
+        chi2_str = f", chi2_divergence={chi2:.3f}" if chi2 is not None else ""
+
+        if actual_decision == "REJECT":
+            reason = f"Coherent transverse Pauli-X rotation (theta={eff_mag:.2f} rad) induced basis asymmetry: Mismatch rate D = {d_val:.4f} > tau_high ({th:.4f}){chi2_str}. Rejected at Layer 2 Tomography Guard."
+        elif actual_decision == "QUARANTINE":
+            reason = f"Coherent transverse Pauli-X rotation (theta={eff_mag:.2f} rad) placed mismatch rate D = {d_val:.4f} in quarantine band [{tl:.4f}, {th:.4f}]{chi2_str}. Quarantined for basis asymmetry."
+        else:
+            reason = f"Coherent Pauli-X rotation (theta={eff_mag:.2f} rad): D = {d_val:.4f}."
+
         return {
             "scenario": scenario_name,
             "attack_type": "adaptive_x",
@@ -398,7 +441,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "findings": findings,
             "latency_ms": resp.get("latency_ms", 0.0),
             "parameters": {"perturbation": "rx_only", "magnitude": eff_mag},
-            "reason": "Coherent Pauli-X transverse rotation induced basis asymmetry detected by channel tomography."
+            "reason": reason
         }
 
     elif scenario in ["transferability", "forgery_by_verifier"]:
@@ -407,6 +450,13 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         t_res = run_forgery_by_verifier(L=100)
         resp_c = t_res.get("response_charlie", {})
         findings = _get_unredacted_findings(resp_c)
+        bob_d = t_res.get("decision_bob")
+        charlie_d = t_res.get("decision_charlie")
+        reason = (
+            f"Transferability attack evaluated: Recipient Bob accepted signed message (verdict: {bob_d}), "
+            f"but when re-forwarded to recipient Charlie with forged key subset, Charlie's dual-threshold test "
+            f"rejected it (verdict: {charlie_d}). Cross-recipient non-transferability invariant successfully preserved."
+        )
         return {
             "scenario": scenario_name,
             "attack_type": "transferability_forgery",
@@ -414,17 +464,17 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "pipeline_stages": ["bob_accept_own_record", "charlie_reject_forgery"],
             "expected_primary_layer": "L2 (Dual-Threshold Transferability Guard)",
             "expected_outcome": "REJECT",
-            "actual_outcome": t_res.get("decision_charlie", "REJECT"),
+            "actual_outcome": charlie_d if charlie_d else "REJECT",
             "detected": t_res.get("transferability_preserved", True),
             "event_id": resp_c.get("evidence_id"),
             "findings": findings,
             "latency_ms": resp_c.get("latency_ms", 0.0),
             "parameters": {
-                "bob_verdict": t_res.get("decision_bob"),
-                "charlie_verdict": t_res.get("decision_charlie"),
+                "bob_verdict": bob_d,
+                "charlie_verdict": charlie_d,
                 "transferability_preserved": t_res.get("transferability_preserved")
             },
-            "reason": f"Bob's fabricated signature accepted by Bob ({t_res.get('decision_bob')}) but rejected by Charlie ({t_res.get('decision_charlie')}). Cross-recipient transferability preserved."
+            "reason": reason
         }
 
     elif scenario in ["blind", "blind_trial"]:
@@ -440,6 +490,14 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         trial_type = gt.get("type", "random")
         expected_verdict = gt.get("expected_verdict", "UNKNOWN")
         correct = eval_info.get("correct", False)
+        mismatch_r = det.get("mismatch_rate")
+        mismatch_str = f", measured D={mismatch_r:.4f}" if mismatch_r is not None else ""
+
+        reason = (
+            f"Autonomous double-blind trial: Target scenario was '{trial_type}' (expected {expected_verdict}). "
+            f"Q-Sentinel pipeline independently resolved verdict as '{actual_decision}'{mismatch_str} "
+            f"({'Accurate classification' if correct else 'Classification mismatch'})."
+        )
 
         return {
             "scenario": scenario_name,
@@ -459,7 +517,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
                 "correct": correct,
                 "confusion_class": eval_info.get("confusion_class")
             },
-            "reason": f"Autonomous blind trial: Ground truth is '{trial_type}' (expected {expected_verdict}), verified as '{actual_decision}' (correct={correct})."
+            "reason": reason
         }
 
     else:

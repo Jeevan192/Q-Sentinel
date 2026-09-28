@@ -226,6 +226,12 @@ export default function AttackMatrix({ onRun, activeKey, lastResult }) {
                     </div>
                   )}
 
+                  {result.reason && (
+                    <div className="text-[10px] font-sans text-slate-300 leading-snug bg-black/40 p-1.5 rounded border border-white/5 line-clamp-3" title={result.reason}>
+                      {result.reason}
+                    </div>
+                  )}
+
                   <div className="text-[10px] opacity-80 flex justify-between">
                     <span>D: {result.deviation_score !== null ? Number(result.deviation_score).toFixed(4) : (result.decision === 'SECURE' ? '0.0000' : (result.layer_stopped === 'L3' ? 'L3 Block' : '0.0000'))}</span>
                     <span>χ²: {result.chi_square !== null ? Number(result.chi_square).toFixed(1) : (result.decision === 'SECURE' ? '0.0' : '—')}</span>

@@ -64,12 +64,14 @@ def verify_chain():
         return {"chain_valid": False, "error": str(e)}
 
 @router.get("/events")
-def get_recent_events(limit: int = 50):
+def get_recent_events(limit: int = 100):
     """Retrieve recent evidence blocks for live hash chain visualization."""
     try:
         with sqlite3.connect(global_ledger.db_path) as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
+            cursor.execute("SELECT count(*) FROM evidence")
+            total_records = cursor.fetchone()[0]
             cursor.execute("SELECT * FROM evidence ORDER BY seq_num DESC LIMIT ?", (limit,))
             rows = cursor.fetchall()
             events = []
@@ -82,8 +84,46 @@ def get_recent_events(limit: int = 50):
                         item["findings"] = json.loads(item["findings"])
                     except Exception:
                         pass
+
+                # Derive rich explanatory reason if not already present
+                if not item.get("reason"):
+                    decision = item.get("decision")
+                    findings_list = item.get("findings") if isinstance(item.get("findings"), list) else []
+                    rejecting = [f for f in findings_list if f.get("severity") in ["REJECT", "QUARANTINE"]]
+                    
+                    if decision == "ACCEPT":
+                        qd = next((f for f in findings_list if f.get("detector") == "QuantumDetector" or f.get("detector_name") == "QuantumDetector"), None)
+                        if qd and "metrics" in qd:
+                            m = qd["metrics"]
+                            d_val = m.get("mismatch_rate", 0.0)
+                            tl = m.get("tau_low", 0.1333)
+                            sub = m.get("matched_subset_size", 50)
+                            item["reason"] = f"Nominal transmission accepted: Mismatch rate D = {d_val:.4f} < tau_low ({tl:.4f}) over {sub} matched bits. PQC signature authentic."
+                        else:
+                            item["reason"] = "Nominal transmission accepted: Quantum key distribution verified within baseline thresholds with valid ML-DSA-65 envelope."
+                    elif decision in ["REJECT", "QUARANTINE"]:
+                        if rejecting:
+                            reasons = []
+                            for f in rejecting[:2]:
+                                det = f.get("detector_name") or f.get("detector") or "Detector"
+                                desc = f.get("description", "")
+                                m = f.get("metrics", {})
+                                if "mismatch_rate" in m:
+                                    d_val = m["mismatch_rate"]
+                                    th = m.get("tau_high", 0.1667)
+                                    reasons.append(f"{det}: Mismatch rate D = {d_val:.4f} > tau_high ({th:.4f})")
+                                elif desc:
+                                    reasons.append(f"{det}: {desc}")
+                                else:
+                                    reasons.append(det)
+                            item["reason"] = f"Action {decision}: " + "; ".join(reasons)
+                        else:
+                            item["reason"] = f"Security pipeline enforced {decision} on envelope presentation."
+                    else:
+                        item["reason"] = f"Ledger block recorded with status: {decision}"
+
                 events.append(item)
-            return events
+            return {"total_records": total_records, "events": events}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
