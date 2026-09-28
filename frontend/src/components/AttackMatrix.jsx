@@ -22,7 +22,7 @@ const SCENARIOS = [
   },
   {
     key: 'channel',
-    label: 'Channel Noise Injection',
+    label: 'Channel Manipulation',
     desc: 'Stochastic Pauli transverse & depolarizing perturbations along quantum link',
     targetLayer: 'L2 Pauli Tomography',
     vectorType: 'Stochastic Channel Noise',
@@ -36,7 +36,7 @@ const SCENARIOS = [
   },
   {
     key: 'forgery',
-    label: 'Signature Bit Mutation',
+    label: 'Forgery B — Valid-Path Quantum Forgery',
     desc: 'Dynamic random key element alteration attempting state forgery',
     targetLayer: 'L1 Quantum Digital Signature',
     vectorType: 'Cryptographic State Mutation',
@@ -50,7 +50,7 @@ const SCENARIOS = [
   },
   {
     key: 'impersonation',
-    label: 'Signer Identity Violation',
+    label: 'Impersonation',
     desc: 'Unregistered rogue participant attempting unauthorized PQC envelope issuance',
     targetLayer: 'L3 Security & Identity Guard',
     vectorType: 'Session Identity Spoofing',
@@ -63,7 +63,7 @@ const SCENARIOS = [
   },
   {
     key: 'replay',
-    label: 'Temporal Nonce Replay',
+    label: 'Replay Attack',
     desc: 'Duplicated cryptographic nonce resubmission across temporal boundaries',
     targetLayer: 'L3 Freshness & Nonce Policy',
     vectorType: 'Historical Message Injection',
@@ -77,7 +77,7 @@ const SCENARIOS = [
   },
   {
     key: 'unauthorized',
-    label: 'Verifier Boundary Check',
+    label: 'Unauthorized Verification',
     desc: 'Query submission to an untrusted verifier not recognized in federation topology',
     targetLayer: 'L3 Authorization Protocol',
     vectorType: 'Untrusted Boundary Access',
@@ -90,7 +90,7 @@ const SCENARIOS = [
   },
   {
     key: 'ledger',
-    label: 'Evidence Chain Audit',
+    label: 'Ledger Tampering',
     desc: 'Cryptographic hash chain audit validating HMAC-SHA256 tamper-evidence',
     targetLayer: 'L4 Evidence Ledger',
     vectorType: 'Merkle/Chain Verification',
@@ -135,7 +135,7 @@ const SCENARIOS = [
   },
 ]
 
-export default function AttackMatrix({ onRun, activeKey, lastResult, onNavigateToTelemetry }) {
+export default function AttackMatrix({ onRun, activeKey, lastResult }) {
   const [loadingKey, setLoadingKey] = useState(null)
 
   const handleRun = async (scenarioKey, customPayload) => {
@@ -230,16 +230,6 @@ export default function AttackMatrix({ onRun, activeKey, lastResult, onNavigateT
                     <span>D: {result.deviation_score !== null ? Number(result.deviation_score).toFixed(4) : (result.decision === 'SECURE' ? '0.0000' : (result.layer_stopped === 'L3' ? 'L3 Block' : '0.0000'))}</span>
                     <span>χ²: {result.chi_square !== null ? Number(result.chi_square).toFixed(1) : (result.decision === 'SECURE' ? '0.0' : '—')}</span>
                   </div>
-
-                  {onNavigateToTelemetry && (
-                    <button
-                      type="button"
-                      onClick={onNavigateToTelemetry}
-                      className="mt-1 w-full text-center py-1 rounded text-[10px] font-mono text-[#c6f135] bg-[#c6f135]/10 hover:bg-[#c6f135]/20 border border-[#c6f135]/30 transition-colors"
-                    >
-                      Inspect Telemetry →
-                    </button>
-                  )}
                 </div>
               )}
 

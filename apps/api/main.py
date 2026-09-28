@@ -40,6 +40,20 @@ def load_identities():
 # Auto-load on module initialization
 load_identities()
 
+import asyncio
+from src.detection.policy import perform_recalibration
+
+async def _periodic_recalibration_loop():
+    recal_interval_s = float(os.environ.get("QS_RECAL_INTERVAL_S", "300"))
+    while True:
+        try:
+            await asyncio.sleep(recal_interval_s)
+            await asyncio.to_thread(perform_recalibration)
+        except asyncio.CancelledError:
+            break
+        except Exception as e:
+            print(f"[Recalibration] Background task cycle error: {e}", flush=True)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     load_identities()
@@ -60,8 +74,16 @@ async def lifespan(app: FastAPI):
             configured_dist = float(os.environ.get("QS_CHANNEL_DISTURBANCE", "0.02"))
             baseline = measure_honest_baseline(disturbance=configured_dist, trials=10, L=90)
             global_policy.calibrate(n=int(round(baseline["n_mean"])), p_err_honest=baseline["e_honest"])
-    yield
-    # Cleanup
+    
+    recal_task = asyncio.create_task(_periodic_recalibration_loop())
+    try:
+        yield
+    finally:
+        recal_task.cancel()
+        try:
+            await recal_task
+        except asyncio.CancelledError:
+            pass
 
 app = FastAPI(title="Q-SENTINEL API", version="9.1.0", lifespan=lifespan)
 
@@ -83,4 +105,11 @@ app.include_router(calibration.router, prefix="/v1/calibration", tags=["calibrat
 @app.get("/v1/health")
 def health_check():
     return {"status": "ok", "version": "v9.1"}
+
+# Optional: Serve built frontend SPA if frontend/dist exists
+from fastapi.staticfiles import StaticFiles
+frontend_dist = os.path.join(os.path.dirname(__file__), "../../frontend/dist")
+if os.path.exists(frontend_dist):
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
+
 

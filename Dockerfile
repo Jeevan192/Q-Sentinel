@@ -1,16 +1,16 @@
-# Q-SENTINEL v9 — API Service Dockerfile
-# Track B: Production container (Python 3.11-slim for stability)
-#
-# Security:
-#   - Non-root user (uid=1000)
-#   - Read-only filesystem (except /app/data volume mount)
-#   - No shell utilities (slim image)
-#   - PYTHONDONTWRITEBYTECODE prevents .pyc writes
+# ── Stage 1: Build React Frontend ──
+FROM node:20-slim AS frontend-builder
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json* ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
 
+# ── Stage 2: Python Backend Runtime ──
 FROM python:3.11-slim AS base
 
 LABEL maintainer="Q-SENTINEL Team"
-LABEL version="9.0.0"
+LABEL version="9.1.0"
 
 # Security: don't buffer output, don't write .pyc
 ENV PYTHONUNBUFFERED=1 \
@@ -31,6 +31,9 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 COPY src/ ./src/
 COPY apps/api/ ./apps/api/
 COPY data/ ./data/
+COPY attacker/ ./attacker/
+COPY experiments/ ./experiments/
+COPY --from=frontend-builder /frontend/dist ./frontend/dist
 
 # Ensure data directory exists and is writable by qsentinel
 RUN mkdir -p /app/data && chown -R qsentinel:qsentinel /app/data
@@ -43,5 +46,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=5s --retries=5 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/v1/health')"
 
-# Run with uvicorn
-CMD ["python", "-m", "uvicorn", "apps.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Run with uvicorn (respects dynamic cloud $PORT, falls back to 8000)
+CMD ["sh", "-c", "python -m uvicorn apps.api.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1"]

@@ -53,6 +53,9 @@ class DecisionPolicy:
         self.tau_high = tau_high
         self.version = version
         self.provenance = provenance or {}
+        if "calibrated_at" not in self.provenance:
+            import time
+            self.provenance["calibrated_at"] = time.time()
         
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
         with open(self.filepath, 'w') as f:
@@ -68,13 +71,16 @@ class DecisionPolicy:
     def calibrate(self, n: int, p_err_honest: float, alpha: float = 1e-4,
                   version: str = "analytical_v92"):
         """Calibrate thresholds analytically from a MEASURED honest baseline."""
+        import time
         tau_low = derive_thresholds(n, p_err_honest, alpha)
         tau_high = derive_thresholds(n, p_err_honest, alpha / 100.0)
         if tau_high <= tau_low:
             tau_high = min(1.0, tau_low + 1.0 / max(n, 1))
         self.save_thresholds(tau_low, tau_high, version,
                              provenance={"n": n, "e_honest": p_err_honest,
-                                         "alpha": alpha, "derivation": "binom.ppf"})
+                                         "alpha": alpha, "derivation": "binom.ppf",
+                                         "calibrated_at": time.time()})
+        reset_verification_counter()
         return tau_low, tau_high
 
     def get_thresholds(self) -> Tuple[float, float]:
@@ -129,4 +135,44 @@ class DecisionPolicy:
 
 # Global policy instance
 global_policy = DecisionPolicy()
+
+import threading
+
+_verifications_since_recal = 0
+_recalibration_lock = threading.Lock()
+
+def reset_verification_counter():
+    global _verifications_since_recal
+    _verifications_since_recal = 0
+
+def increment_verification_counter() -> bool:
+    global _verifications_since_recal
+    _verifications_since_recal += 1
+    recal_every_n = int(os.environ.get("QS_RECAL_EVERY_N", "50"))
+    if _verifications_since_recal >= recal_every_n:
+        _verifications_since_recal = 0
+        return True
+    return False
+
+def perform_recalibration() -> bool:
+    """
+    Perform periodic/event-driven analytical recalibration from an empirical honest baseline.
+    Protected by _recalibration_lock against overlapping executions.
+    Never crashes caller or drops existing thresholds on error.
+    """
+    if not _recalibration_lock.acquire(blocking=False):
+        print("[Recalibration] Skipping: recalibration already in progress.", flush=True)
+        return False
+    try:
+        from src.calibration.measure_honest import measure_honest_baseline
+        configured_dist = float(os.environ.get("QS_CHANNEL_DISTURBANCE", "0.02"))
+        baseline = measure_honest_baseline(disturbance=configured_dist, trials=10, L=90)
+        global_policy.calibrate(n=int(round(baseline["n_mean"])), p_err_honest=baseline["e_honest"])
+        print(f"[Recalibration] Recalibration complete: version={global_policy.get_version()}, thresholds={global_policy.get_thresholds()}", flush=True)
+        return True
+    except Exception as e:
+        print(f"[Recalibration] Error during recalibration: {e}", flush=True)
+        return False
+    finally:
+        _recalibration_lock.release()
 

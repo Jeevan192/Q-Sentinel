@@ -12,17 +12,30 @@ from src.detection.forgery_probability import compute_forgery_probability
 
 @router.get("/status")
 def get_calibration_status():
+    import os
     tau_low, tau_high = global_policy.get_thresholds()
     b_ver = baseline_mgr.get_version()
     p_ver = global_policy.get_version()
     # Use calibrated policy version if baseline was uncalibrated
     effective_version = p_ver if p_ver != "uncalibrated" else b_ver
+    
+    last_calibrated_at = global_policy.provenance.get("calibrated_at")
+    if last_calibrated_at is None and os.path.exists(global_policy.filepath):
+        try:
+            last_calibrated_at = os.path.getmtime(global_policy.filepath)
+        except OSError:
+            pass
+
+    recal_interval_s = float(os.environ.get("QS_RECAL_INTERVAL_S", "300"))
+
     return {
         "baseline_version": effective_version,
         "policy_version": p_ver,
         "threshold_low": tau_low,
         "threshold_high": tau_high,
-        "thresholds": (tau_low, tau_high)
+        "thresholds": (tau_low, tau_high),
+        "last_calibrated_at": last_calibrated_at,
+        "recalibration_interval_s": recal_interval_s
     }
 
 @router.post("/reload")

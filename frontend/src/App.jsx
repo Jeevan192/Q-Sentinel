@@ -48,6 +48,11 @@ export default function App() {
 
     // Refresh ledger in background
     refreshLedger()
+
+    // Auto-navigate to Telemetry once the engine has computed a decision
+    if (result?.decision) {
+      setActiveTab('telemetry')
+    }
   }
 
   return (
@@ -90,7 +95,6 @@ export default function App() {
               onRun={handleRunScenario}
               activeKey={activeScenarioKey}
               lastResult={lastResult}
-              onNavigateToTelemetry={() => setActiveTab('telemetry')}
             />
           </div>
         )}

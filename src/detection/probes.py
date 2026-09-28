@@ -9,11 +9,11 @@ from src.detection.findings import Finding, Severity
 from src.qds.verification import compute_mismatch_rate
 from src.qds.key_material import QuantumKeyElement
 
-class AuthenticationProbe:
-    """Evaluates identity and authorization."""
+class EnvelopeProbe:
+    """Evaluates PQC envelope validity and cryptographic signature binding (L1)."""
     
     @staticmethod
-    def evaluate(is_identity_valid: bool, is_authorized: bool, signer_id: str, verifier_id: str) -> List[Finding]:
+    def evaluate(is_identity_valid: bool, signer_id: str) -> List[Finding]:
         findings = []
         if not is_identity_valid:
             findings.append(Finding(
@@ -22,6 +22,30 @@ class AuthenticationProbe:
                 description="Invalid identity binding. Signature failed verification.",
                 metrics={"signer_id": signer_id}
             ))
+        return findings
+
+class AuthenticationProbe:
+    """Evaluates verifier authorization (L3)."""
+    
+    @staticmethod
+    def evaluate(is_authorized: bool, verifier_id: str, *args, **kwargs) -> List[Finding]:
+        # Backward compatibility for legacy 4-argument calls
+        if len(args) == 2:
+            is_identity_valid = is_authorized
+            is_auth = verifier_id
+            signer_id = args[0]
+            v_id = args[1]
+            findings = EnvelopeProbe.evaluate(is_identity_valid, signer_id)
+            if not is_auth:
+                findings.append(Finding(
+                    detector_name="AuthorizationGuard",
+                    severity=Severity.REJECT,
+                    description="Verifier is not authorized to invoke this endpoint.",
+                    metrics={"verifier_id": v_id}
+                ))
+            return findings
+
+        findings = []
         if not is_authorized:
             findings.append(Finding(
                 detector_name="AuthorizationGuard",
@@ -133,6 +157,27 @@ class TomographyProbe:
         else:
             severity = Severity.QUARANTINE  # Coherent attacks get quarantine; the statistical probe handles reject
         
+        # Item 3: Compute chi-square and deviation score across basis mismatch rates
+        from src.detection.statistics import DetectorStatistics
+        from src.detection.policy import global_policy
+        
+        e_honest_baseline = global_policy.provenance.get("e_honest")
+        if e_honest_baseline is None:
+            e_honest_baseline = global_policy.tau_low
+
+        rates = basis_rates
+        matched_subset_size = sum(rates[b]["total"] for b in rates)
+        p_hat = {
+            basis: {"match": 1.0 - rates[basis]["rate"], "mismatch": rates[basis]["rate"]}
+            for basis in rates
+        }
+        mu = {
+            basis: {"match": 1.0 - e_honest_baseline, "mismatch": e_honest_baseline}
+            for basis in rates
+        }
+        chi2 = DetectorStatistics.compute_chi_square(p_hat, mu, N=matched_subset_size)
+        deviation = DetectorStatistics.compute_deviation(p_hat, mu)
+
         return [Finding(
             detector_name="ChannelTomography",
             severity=severity,
@@ -141,5 +186,7 @@ class TomographyProbe:
                 "attack_type": attack_type,
                 "confidence": confidence,
                 "basis_rates": classification["basis_rates"],
+                "chi_square": chi2,
+                "deviation_score": deviation,
             }
         )]

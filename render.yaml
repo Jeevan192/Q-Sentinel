@@ -1,0 +1,24 @@
+# Render Blueprint Specification for Q-SENTINEL v9
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: q-sentinel
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    healthCheckPath: /v1/health
+    envVars:
+      - key: QSENTINEL_LEDGER_SECRET
+        generateValue: true
+      - key: QSENTINEL_DB_PATH
+        value: /app/data/ledger.db
+      - key: QSENTINEL_NONCE_DB
+        value: /app/data/nonces.db
+      - key: QS_OPERATOR_TOKEN
+        generateValue: true
+      # Optional: if you upgrade to Render Starter plan ($7/mo), you can attach a persistent disk:
+      # disk:
+      #   name: qsentinel-data
+      #   mountPath: /app/data
+      #   sizeGB: 1

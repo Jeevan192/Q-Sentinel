@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 import time
@@ -8,7 +8,7 @@ from src.security.nonce import global_nonce_guard, TimestampGuard
 from src.security.rate_limit import global_rate_limiter
 from src.qds.key_material import QuantumKeyElement
 from src.keyvault.session_store import global_session_store
-from src.detection.probes import AuthenticationProbe, FreshnessProbe, StatisticalProbe, TomographyProbe
+from src.detection.probes import EnvelopeProbe, AuthenticationProbe, FreshnessProbe, StatisticalProbe, TomographyProbe
 from src.detection.correlation import CorrelationEngine
 from src.detection.policy import global_policy
 from src.ledger.hash_chain import global_ledger
@@ -39,7 +39,7 @@ class VerifyResponse(BaseModel):
     calibration_status: str
 
 @router.post("/verify", response_model=VerifyResponse)
-def verify_qds(req: VerifyRequest, request: Request):
+def verify_qds(req: VerifyRequest, request: Request, background_tasks: BackgroundTasks = None):
     start_time = time.time()
     
     # 1. Rate Limiting
@@ -59,21 +59,30 @@ def verify_qds(req: VerifyRequest, request: Request):
     # 2. Extract payload for signature verification
     payload_dict = req.model_dump(exclude={"signature"})
     
-    # 3. Authentication Probe (L3)
+    # 1. Envelope Validity (L1)
     is_identity_valid = global_pqc_identity.verify_request_signature(
         req.signer_id, payload_dict, req.signature
     )
-    is_authorized = global_pqc_identity.is_verifier_authorized(req.verifier_id)
-    
     # Verify session identity binding: signer must be the party bound to the session
     session_rec = global_session_store.get_session_record(req.session_id)
     if session_rec and session_rec.get("signer_id") != req.signer_id:
         is_identity_valid = False
         
     try:
-        auth_findings = AuthenticationProbe.evaluate(
-            is_identity_valid, is_authorized, req.signer_id, req.verifier_id
-        )
+        envelope_findings = EnvelopeProbe.evaluate(is_identity_valid, req.signer_id)
+        all_findings.extend(envelope_findings)
+    except Exception as exc:
+        all_findings.append(Finding(
+            detector_name="EnvelopeProbeFault",
+            severity=Severity.REJECT,
+            description=f"Envelope probe encountered internal fault: {exc}",
+            metrics={"error": str(exc)}
+        ))
+
+    # 3. Authentication Probe (L3)
+    is_authorized = global_pqc_identity.is_verifier_authorized(req.verifier_id)
+    try:
+        auth_findings = AuthenticationProbe.evaluate(is_authorized, req.verifier_id)
         all_findings.extend(auth_findings)
     except Exception as exc:
         all_findings.append(Finding(
@@ -192,6 +201,11 @@ def verify_qds(req: VerifyRequest, request: Request):
     }
     
     event_id = global_ledger.record_event(event_data)
+    
+    # Event-driven recalibration trigger
+    from src.detection.policy import increment_verification_counter, perform_recalibration
+    if increment_verification_counter() and background_tasks is not None:
+        background_tasks.add_task(perform_recalibration)
     
     # 8. Constant-time response envelope padding (mitigates timing side-channels)
     TARGET_LATENCY_S = 0.040  # 40ms minimum constant-time floor

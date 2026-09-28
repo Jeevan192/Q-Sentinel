@@ -11,6 +11,8 @@
 
 ### L3 — Security & Authorization Guard
 
+> **Layer Architecture Specification:** L3 evaluates verifier endpoint authorization (`AuthenticationProbe`), timestamp freshness, and nonce replay (`FreshnessProbe`), operating downstream of L1's cryptographic envelope validation.
+
 | Feature | Status | Evidence |
 |---|---|---|
 | Identity binding | ✅ IMPLEMENTED (allowlist) | `src/security/identity.py` — registered signers: {alice, bob, charlie, david} |
@@ -21,10 +23,13 @@
 | Replay protection | ✅ IMPLEMENTED AND VERIFIED | `src/security/replay.py:ReplayGuard` — delegates to NonceGuard |
 | L3 events in ledger | ✅ IMPLEMENTED | `apps/api/routes/verify.py:_record_l3_rejection()` |
 
-### L1 — QDS Verification Core
+### L1 — QDS Verification Core & PQC Envelope Validity
+
+> **Layer Architecture Specification:** L1 encompasses PQC envelope and digital signature validity (`EnvelopeProbe`), verified as an independent step before L3's identity-binding and authorization checks, ensuring invalid cryptographic envelopes are flagged at L1.
 
 | Feature | Status | Evidence |
 |---|---|---|
+| PQC Envelope Validity | ✅ IMPLEMENTED | `src/detection/probes.py:EnvelopeProbe` — ML-DSA-65 signature & session binding |
 | Message-state preparation | ✅ VERIFIED | `qc.h(qr[0])` — prepares |+⟩ state |
 | Bell-state preparation | ✅ VERIFIED | `qc.h(qr[1]); qc.cx(qr[1], qr[2])` |
 | Bell-basis measurement | ✅ VERIFIED | `qc.cx(qr[0], qr[1]); qc.h(qr[0]); measure(q0,q1)` |
