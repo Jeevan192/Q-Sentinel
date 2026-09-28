@@ -163,7 +163,7 @@ export default function AttackMatrix({ onRun, activeKey, lastResult }) {
           const Icon = scenario.icon
           const isLoading = loadingKey === scenario.key
           const isActive = activeKey === scenario.key
-          const result = isActive && lastResult ? lastResult : null
+          const result = isActive && !isLoading && lastResult ? lastResult : null
 
           return (
             <div

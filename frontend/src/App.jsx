@@ -42,6 +42,7 @@ export default function App() {
 
   const handleRunScenario = async (scenario) => {
     setActiveScenarioKey(scenario.key)
+    setLastResult(null)
 
     const result = await runScenario(scenario.key, scenario.payload)
     setLastResult(result)
