@@ -117,7 +117,7 @@ def verify_qds(req: VerifyRequest, request: Request, background_tasks: Backgroun
             description=f"Session {req.session_id} has already been verified by {req.verifier_id}.",
             metrics={"session_id": req.session_id, "verifier_id": req.verifier_id}
         ))
-    else:
+    elif is_identity_valid and is_authorized and is_fresh:
         global_session_store.mark_consumed(req.session_id, req.verifier_id, start_time)
 
     # 5. Look up pre-distributed verifier session outcomes

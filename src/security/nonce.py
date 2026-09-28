@@ -32,12 +32,14 @@ class SQLiteNonceGuard:
         Check if a nonce is fresh (not seen before).
         Records the nonce if it is fresh.
         """
+        if not nonce or not isinstance(nonce, str) or not nonce.strip():
+            return False
         try:
             with sqlite3.connect(self.db_path) as conn:
                 # Attempt to insert. If it exists, IntegrityError is raised.
                 conn.execute(
                     'INSERT INTO seen_nonces (nonce, session_id, timestamp) VALUES (?, ?, ?)',
-                    (nonce, session_id, time.time())
+                    (nonce.strip(), session_id, time.time())
                 )
                 conn.commit()
                 return True
@@ -60,6 +62,9 @@ class TimestampGuard:
         Check if timestamp is within the acceptable window.
         Allows for slight future drift (e.g. clock sync issues).
         """
+        import math
+        if not isinstance(req_timestamp, (int, float)) or math.isnan(req_timestamp) or math.isinf(req_timestamp):
+            return False
         now = time.time()
         # Accept up to 60 seconds in the future, and max_age_seconds in the past
         return (now - max_age_seconds) <= req_timestamp <= (now + 60)

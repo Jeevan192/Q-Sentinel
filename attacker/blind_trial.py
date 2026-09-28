@@ -186,7 +186,9 @@ def generate_blind_trial_payload(trial_type: Optional[str] = None) -> Tuple[dict
         return payload, ground_truth
 
     elif trial_type == "replay":
-        # Executes legitimate setup request first, then replays identical payload
+        # Simulates replayed request where nonce was already recorded by verifier
+        from src.security.nonce import global_nonce_guard
+        from src.keyvault.session_store import global_session_store
         original_payload = get_base_payload(
             signer_id="alice",
             verifier_id="bob",
@@ -194,7 +196,8 @@ def generate_blind_trial_payload(trial_type: Optional[str] = None) -> Tuple[dict
             message_bit=msg_bit,
             experiment_id=f"setup-{trial_id}"
         )
-        send_verify(original_payload)  # Consume nonce & session once
+        global_nonce_guard.is_fresh(original_payload["nonce"], original_payload["session_id"])
+        global_session_store.mark_consumed(original_payload["session_id"], original_payload["verifier_id"], time.time())
         replayed_payload = copy.deepcopy(original_payload)
         ground_truth = {
             "trial_id": trial_id,
@@ -207,7 +210,8 @@ def generate_blind_trial_payload(trial_type: Optional[str] = None) -> Tuple[dict
         return replayed_payload, ground_truth
 
     elif trial_type == "double_consumption":
-        # Submits valid session once, then resubmits with NEW nonce but SAME session_id to same verifier
+        # Simulates re-use of consumed session with fresh nonce
+        from src.keyvault.session_store import global_session_store
         original_payload = get_base_payload(
             signer_id="alice",
             verifier_id="bob",
@@ -215,7 +219,7 @@ def generate_blind_trial_payload(trial_type: Optional[str] = None) -> Tuple[dict
             message_bit=msg_bit,
             experiment_id=f"setup-dc-{trial_id}"
         )
-        send_verify(original_payload)  # Consume session
+        global_session_store.mark_consumed(original_payload["session_id"], original_payload["verifier_id"], time.time())
         # Construct fresh request for the same consumed session
         second_payload = copy.deepcopy(original_payload)
         second_payload["nonce"] = f"nonce-{uuid.uuid4()}"

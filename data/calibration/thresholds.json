@@ -4,12 +4,12 @@
   "version": "analytical_v92_validated",
   "provenance": {
     "n": 30,
-    "e_honest": 0.01575,
+    "e_honest": 0.01393,
     "alpha": 0.0001,
     "k_low": 4,
     "k_high": 6,
-    "p_exceed_low": 9.9417209649455e-05,
-    "p_exceed_high": 3.5598377601253617e-07,
-    "calibrated_at": 1790616702.5884807
+    "p_exceed_low": 5.589055003374366e-05,
+    "p_exceed_high": 1.5637369310539384e-07,
+    "calibrated_at": 1790619096.8195617
   }
 }

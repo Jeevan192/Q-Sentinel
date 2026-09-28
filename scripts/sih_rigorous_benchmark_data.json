@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "timestamp": "2026-09-28T17:34:31Z",
+    "timestamp": "2026-09-28T18:15:57Z",
     "evaluation_engine": "Q-SENTINEL Live Physics Simulation & Cryptographic Core",
     "evaluator_target": "SIH26141",
     "quantum_simulation": "Qiskit AerSimulator (live physics-based software simulation)",
@@ -12,74 +12,74 @@
     "trials": 300,
     "L": 90,
     "configured_disturbance": 0.02,
-    "calibration_time_s": 40.61,
+    "calibration_time_s": 41.48,
     "e_honest": {
-      "mean": 0.01575,
+      "mean": 0.01393,
       "median": 0.0,
-      "std_dev": 0.0246,
-      "variance": 0.0006053,
-      "standard_error": 0.00142,
+      "std_dev": 0.02159,
+      "variance": 0.0004663,
+      "standard_error": 0.00125,
       "ci_95": [
-        0.01297,
-        0.01853
+        0.01149,
+        0.01638
       ],
       "ci_99": [
-        0.01209,
-        0.01941
+        0.01072,
+        0.01715
       ],
       "min": 0.0,
-      "max": 0.13793,
+      "max": 0.13333,
       "quantiles": {
         "p25": 0.0,
         "p50": 0.0,
         "p75": 0.03125,
-        "p90": 0.04226,
-        "p95": 0.06462,
-        "p99": 0.0954
+        "p90": 0.03704,
+        "p95": 0.05882,
+        "p99": 0.08337
       }
     },
     "matched_subset_n": {
-      "mean": 30.0,
-      "std_dev": 4.58,
-      "min": 17,
-      "max": 42
+      "mean": 30.23,
+      "std_dev": 4.51,
+      "min": 19,
+      "max": 44
     }
   },
   "phase2_binomial_validation": {
-    "dispersion_index": 1.0835,
-    "observed_var_K": 0.5039,
-    "expected_var_K": 0.4651,
-    "chi2_stat": 2.3238,
-    "chi2_p_value": 0.6764,
-    "autocorrelation_lag1": -0.001,
-    "autocorrelation_p_value": 0.9863,
+    "dispersion_index": 1.0755,
+    "observed_var_K": 0.4466,
+    "expected_var_K": 0.4152,
+    "chi2_stat": 3.1472,
+    "chi2_p_value": 0.5335,
+    "autocorrelation_lag1": -0.0467,
+    "autocorrelation_p_value": 0.4211,
     "model_assessment": "Binomial(n, e_honest) is statistically adequate",
     "bins_observed": [
-      192,
-      81,
-      23,
+      195,
+      86,
+      15,
       3,
       1
     ],
     "bins_expected": [
-      186.3,
-      89.5,
-      20.8,
-      3.1,
-      0.4
+      196.9,
+      83.5,
+      17.1,
+      2.3,
+      0.2
     ]
   },
   "phase3_threshold_derivation": {
     "n_evaluated": 30,
-    "e_honest_used": 0.01575,
+    "e_honest_used": 0.01393,
     "target_alpha": 0.0001,
     "k_low": 4,
     "k_high": 6,
     "tau_low": 0.13333,
     "tau_high": 0.2,
-    "model_tail_prob_tau_low": 9.9417209649455e-05,
-    "model_tail_prob_tau_high": 3.5598377601253617e-07,
-    "sub_k_tail_prob_check": 0.0012154913586456262
+    "model_tail_prob_tau_low": 5.589055003374366e-05,
+    "model_tail_prob_tau_high": 1.5637369310539384e-07,
+    "sub_k_tail_prob_check": 0.000772422682779883
   },
   "phase4_dataset_a_clean": {
     "trials": 300,
@@ -99,13 +99,13 @@
       0.0126
     ],
     "mean_mismatch_D": 0.0,
-    "mean_latency_ms": 129.59
+    "mean_latency_ms": 356.71
   },
   "phase5_dataset_b_degraded": {
     "p_0.05": {
       "disturbance_p": 0.05,
       "trials": 30,
-      "mean_D": 0.0519,
+      "mean_D": 0.0421,
       "outcomes": {
         "ACCEPT": 29,
         "QUARANTINE": 1,
@@ -118,41 +118,41 @@
     "p_0.1": {
       "disturbance_p": 0.1,
       "trials": 30,
-      "mean_D": 0.0798,
+      "mean_D": 0.0867,
       "outcomes": {
-        "ACCEPT": 27,
-        "QUARANTINE": 3,
+        "ACCEPT": 25,
+        "QUARANTINE": 5,
         "REJECT": 0
       },
-      "pct_accept": 90.0,
-      "pct_quarantine": 10.0,
+      "pct_accept": 83.3,
+      "pct_quarantine": 16.7,
       "pct_reject": 0.0
     },
     "p_0.18": {
       "disturbance_p": 0.18,
       "trials": 30,
-      "mean_D": 0.1432,
+      "mean_D": 0.1472,
       "outcomes": {
-        "ACCEPT": 11,
-        "QUARANTINE": 14,
-        "REJECT": 5
+        "ACCEPT": 15,
+        "QUARANTINE": 7,
+        "REJECT": 8
       },
-      "pct_accept": 36.7,
-      "pct_quarantine": 46.7,
-      "pct_reject": 16.7
+      "pct_accept": 50.0,
+      "pct_quarantine": 23.3,
+      "pct_reject": 26.7
     },
     "p_0.28": {
       "disturbance_p": 0.28,
       "trials": 30,
-      "mean_D": 0.1923,
+      "mean_D": 0.1879,
       "outcomes": {
-        "ACCEPT": 7,
-        "QUARANTINE": 12,
-        "REJECT": 11
+        "ACCEPT": 6,
+        "QUARANTINE": 11,
+        "REJECT": 13
       },
-      "pct_accept": 23.3,
-      "pct_quarantine": 40.0,
-      "pct_reject": 36.7
+      "pct_accept": 20.0,
+      "pct_quarantine": 36.7,
+      "pct_reject": 43.3
     }
   },
   "phase6_dataset_c_quantum_attacks": {
@@ -165,32 +165,32 @@
         0.8865,
         1.0
       ],
-      "mean_latency_ms": 332.95,
-      "mean_mismatch_D": 0.3439,
+      "mean_latency_ms": 347.18,
+      "mean_mismatch_D": 0.3533,
       "layer": "L2 (StatisticalProbe)"
     },
     "adaptive_x_rotation": {
       "trials": 30,
-      "TP": 28,
-      "FN": 2,
-      "detection_rate": 0.9333,
+      "TP": 29,
+      "FN": 1,
+      "detection_rate": 0.9667,
       "ci_95": [
-        0.7868,
-        0.9815
+        0.8333,
+        0.9941
       ],
-      "mean_latency_ms": 389.85,
+      "mean_latency_ms": 313.68,
       "layer": "L2 (Pauli Tomography / StatisticalProbe)"
     },
     "transferability_forgery": {
       "trials": 30,
-      "TP": 28,
-      "FN": 2,
-      "detection_rate": 0.9333,
+      "TP": 29,
+      "FN": 1,
+      "detection_rate": 0.9667,
       "ci_95": [
-        0.7868,
-        0.9815
+        0.8333,
+        0.9941
       ],
-      "mean_latency_ms": 488.53,
+      "mean_latency_ms": 491.14,
       "layer": "L2 (Dual-Threshold Transferability Guard)"
     }
   },
@@ -204,9 +204,9 @@
         0.8865,
         1.0
       ],
-      "mean_latency_ms": 345.6,
-      "median_latency_ms": 339.86,
-      "p95_latency_ms": 401.47,
+      "mean_latency_ms": 319.88,
+      "median_latency_ms": 309.79,
+      "p95_latency_ms": 379.26,
       "layer": "L3 (NonceGuard)"
     },
     "impersonation": {
@@ -218,9 +218,9 @@
         0.8865,
         1.0
       ],
-      "mean_latency_ms": 296.75,
-      "median_latency_ms": 286.84,
-      "p95_latency_ms": 345.25,
+      "mean_latency_ms": 316.72,
+      "median_latency_ms": 310.97,
+      "p95_latency_ms": 386.47,
       "layer": "L3 (IdentityGuard ML-DSA-65)"
     },
     "unauthorized": {
@@ -232,16 +232,16 @@
         0.8865,
         1.0
       ],
-      "mean_latency_ms": 293.78,
-      "median_latency_ms": 283.42,
-      "p95_latency_ms": 377.06,
+      "mean_latency_ms": 392.59,
+      "median_latency_ms": 309.04,
+      "p95_latency_ms": 372.22,
       "layer": "L3 (AuthorizationGuard)"
     }
   },
   "phase8_dataset_e_ledger_audit": {
-    "total_records_verified": 1719,
-    "full_audit_latency_ms": 32.83,
-    "per_record_latency_us": 19.1,
+    "total_records_verified": 2564,
+    "full_audit_latency_ms": 53.97,
+    "per_record_latency_us": 21.05,
     "tamper_trials_tested": 20,
     "tamper_detected_count": 20,
     "tamper_detection_rate": 1.0,
@@ -253,62 +253,62 @@
   "phase9_dataset_f_timing_side_channel": {
     "trials_per_condition": 50,
     "early_reject": {
-      "mean_ms": 51.37,
-      "median_ms": 47.88,
-      "variance_ms2": 207.65,
-      "std_dev_ms": 14.41,
-      "p95_ms": 57.86
+      "mean_ms": 47.12,
+      "median_ms": 47.08,
+      "variance_ms2": 1.53,
+      "std_dev_ms": 1.24,
+      "p95_ms": 48.03
     },
     "full_verify": {
-      "mean_ms": 293.25,
-      "median_ms": 283.12,
-      "variance_ms2": 978.25,
-      "std_dev_ms": 31.28,
-      "p95_ms": 349.82
+      "mean_ms": 309.02,
+      "median_ms": 301.21,
+      "variance_ms2": 1766.44,
+      "std_dev_ms": 42.03,
+      "p95_ms": 363.19
     },
-    "delta_mean_ms": 241.88,
-    "welch_t_stat": -49.6669,
+    "delta_mean_ms": 261.9,
+    "welch_t_stat": -44.0434,
     "welch_p_value": 0.0,
-    "cohen_d_effect_size": 9.9334,
+    "cohen_d_effect_size": 8.8087,
     "ks_stat": 1.0,
     "ks_p_value": 0.0
   },
   "phase10_blind_evaluation_100": {
     "batch_size": 100,
     "confusion_matrix": {
-      "TP": 86,
-      "TN": 5,
-      "FP": 8,
-      "FN": 1
+      "TP": 87,
+      "TN": 1,
+      "FP": 12,
+      "FN": 0
     },
     "metrics": {
-      "accuracy": 0.91,
-      "balanced_accuracy": 0.6865,
-      "recall_sensitivity": 0.9885,
+      "accuracy": 0.88,
+      "balanced_accuracy": 0.5384,
+      "recall_sensitivity": 1.0,
       "recall_ci_95": [
-        0.9377,
-        0.998
+        0.9577,
+        1.0
       ],
-      "specificity": 0.3846,
+      "specificity": 0.0769,
       "specificity_ci_95": [
-        0.1771,
-        0.6448
+        0.0137,
+        0.3331
       ],
-      "precision": 0.9149,
+      "precision": 0.8788,
       "precision_ci_95": [
-        0.841,
-        0.9562
+        0.8,
+        0.9293
       ],
-      "f1_score": 0.9503,
-      "false_positive_rate": 0.6154,
-      "false_negative_rate": 0.0115
+      "f1_score": 0.9355,
+      "false_positive_rate": 0.9231,
+      "false_negative_rate": 0.0
     },
     "breakdown": {
       "honest": {
         "total": 13,
-        "ACCEPT": 5,
-        "QUARANTINE": 3,
-        "REJECT": 5
+        "ACCEPT": 1,
+        "QUARANTINE": 2,
+        "REJECT": 10
       },
       "impersonation": {
         "total": 13,
@@ -336,9 +336,9 @@
       },
       "channel_noise": {
         "total": 12,
-        "ACCEPT": 1,
-        "QUARANTINE": 5,
-        "REJECT": 6
+        "ACCEPT": 0,
+        "QUARANTINE": 7,
+        "REJECT": 5
       },
       "signature_forgery": {
         "total": 12,
@@ -349,8 +349,8 @@
       "quantum_forgery": {
         "total": 12,
         "ACCEPT": 0,
-        "QUARANTINE": 2,
-        "REJECT": 10
+        "QUARANTINE": 4,
+        "REJECT": 8
       }
     }
   }

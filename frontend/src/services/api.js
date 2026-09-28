@@ -341,7 +341,9 @@ export async function runScenario(scenarioKey, payload = {}) {
 
     // Compute empirical Pauli probabilities based on true quantum tomography
     let basisProbs = null
-    if (basisRates) {
+    if (stages[0] === 'L3_FAIL' || stages[3] === 'L4_FAIL') {
+      basisProbs = { X: 1.0, Y: 0.50, Z: 0.50, intercepted_early: true }
+    } else if (basisRates) {
       const getRate = (r) => (typeof r === 'number' ? r : (r?.rate ?? 0.0))
       const rX = getRate(basisRates.X)
       const rY = getRate(basisRates.Y)
@@ -354,8 +356,6 @@ export async function runScenario(scenarioKey, payload = {}) {
       }
     } else if (scenarioKey === 'legitimate' || scenarioKey === 'timing_oracle') {
       basisProbs = { X: 1.0, Y: 0.50, Z: 0.50 }
-    } else if (stages[0] === 'L3_FAIL' || stages[3] === 'L4_FAIL') {
-      basisProbs = { X: 1.0, Y: 0.50, Z: 0.50, intercepted_early: true }
     }
 
     const primaryRejectedDetector = findings.find(f => f.severity === 'REJECT')?.detector_name

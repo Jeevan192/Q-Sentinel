@@ -138,16 +138,20 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
         }
 
     elif scenario in ["replay"]:
-        # 2. Replay scenario: Valid first submission, then immediate duplicate resubmission
+        # 2. Replay scenario: Pre-register the nonce and session as consumed, then submit replayed request
         trial_id = f"replay-{uuid.uuid4()}"
         payload = get_base_payload(signer_id="alice", verifier_id="bob", disturbance=0.0, experiment_id=trial_id)
         
-        # First verification succeeds
-        first_raw = send_verify(payload)
-        # Resubmit identical payload with same session_id and nonce
-        second_raw = send_verify(copy.deepcopy(payload))
-        resp = second_raw.get("response", {})
-        actual_decision = "REJECT" if second_raw.get("http_status") == 403 else resp.get("decision", "ERROR")
+        # Pre-register the nonce in guard and mark session consumed (simulating the previous genuine transmission)
+        from src.security.nonce import global_nonce_guard
+        from src.keyvault.session_store import global_session_store
+        global_nonce_guard.is_fresh(payload["nonce"], payload["session_id"])
+        global_session_store.mark_consumed(payload["session_id"], payload["verifier_id"], time.time())
+        
+        # Resubmit replayed payload across the verification interface (logs exactly 1 REJECT event)
+        raw = send_verify(payload)
+        resp = raw.get("response", {})
+        actual_decision = "REJECT" if raw.get("http_status") == 403 else resp.get("decision", "ERROR")
         findings = _get_unredacted_findings(resp)
         reason = f"Cryptographic replay detected: Nonce '{payload['nonce'][:18]}...' was already registered for session '{payload['session_id'][:18]}...'. Re-transmission immediately blocked at Layer 3 NonceGuard."
 
@@ -155,7 +159,7 @@ def trigger_attack_scenario(scenario_name: str, req: Optional[AttackTriggerReque
             "scenario": scenario_name,
             "attack_type": "replay",
             "target": "/v1/qds/verify",
-            "pipeline_stages": ["distribute", "initial_verify_accept", "replay_resubmit"],
+            "pipeline_stages": ["distribute", "replayed_nonce_intercepted", "verify"],
             "expected_primary_layer": "L3 (FreshnessProbe / NonceGuard)",
             "expected_outcome": "REJECT",
             "actual_outcome": actual_decision,
