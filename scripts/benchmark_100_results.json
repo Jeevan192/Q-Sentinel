@@ -1,0 +1,970 @@
+{
+  "benchmark_timestamp": "2026-09-28T17:14:46Z",
+  "calibration_parameters": {
+    "policy_version": "analytical_v92",
+    "tau_low": 0.09375,
+    "tau_high": 0.15625,
+    "derivation_method": "analytical_binomial_quantile (binom.ppf)",
+    "base_disturbance_e_honest": 0.0253,
+    "target_fpr_alpha": 0.0001
+  },
+  "blind_batch_100_events": {
+    "batch_size": 100,
+    "confusion_matrix": {
+      "TP": 86,
+      "TN": 4,
+      "FP": 10,
+      "FN": 0
+    },
+    "metrics": {
+      "accuracy": 0.9,
+      "precision": 0.8958,
+      "recall": 1.0,
+      "specificity": 0.2857,
+      "f1_score": 0.9451
+    },
+    "type_breakdown": {
+      "honest": {
+        "total": 13,
+        "ACCEPT": 4,
+        "QUARANTINE": 2,
+        "REJECT": 7,
+        "correct": 4
+      },
+      "impersonation": {
+        "total": 13,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 13,
+        "correct": 13
+      },
+      "unauthorized_verifier": {
+        "total": 13,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 13,
+        "correct": 13
+      },
+      "replay": {
+        "total": 13,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 13,
+        "correct": 13
+      },
+      "double_consumption": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 12,
+        "correct": 12
+      },
+      "channel_noise": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 5,
+        "REJECT": 7,
+        "correct": 11
+      },
+      "signature_forgery": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 0,
+        "REJECT": 12,
+        "correct": 12
+      },
+      "quantum_forgery": {
+        "total": 12,
+        "ACCEPT": 0,
+        "QUARANTINE": 2,
+        "REJECT": 10,
+        "correct": 12
+      }
+    },
+    "recent_trials": [
+      {
+        "trial_id": "trial-c567a4de-6f1a-4b8a-9626-77858fa09e0b",
+        "timestamp": 1790615623.2974675,
+        "ground_truth": {
+          "type": "channel_noise",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L2 (StatisticalProbe / Tomography)",
+          "parameters": {
+            "disturbance": 0.305
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.46988487243652,
+          "evidence_id": "evt-1790615623.2793071"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-3240693d-1638-48ae-8631-294d86c4fff1",
+        "timestamp": 1790615623.5850751,
+        "ground_truth": {
+          "type": "signature_forgery",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (PQCEnvelope / AuthenticationProbe)",
+          "parameters": {
+            "mutated_signature": true
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.50302505493164,
+          "evidence_id": "evt-1790615623.5590627"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-714e1793-05cf-449a-9139-623e1ebda51c",
+        "timestamp": 1790615623.8483875,
+        "ground_truth": {
+          "type": "quantum_forgery",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L2 (StatisticalProbe)",
+          "parameters": {
+            "quantum_guessing_noise": 0.25
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.45605659484863,
+          "evidence_id": "evt-1790615623.8187048"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-a6afe0da-44d9-4994-8e66-54b8c7440d0c",
+        "timestamp": 1790615624.1156523,
+        "ground_truth": {
+          "type": "honest",
+          "category": "HONEST",
+          "expected_verdict": "ACCEPT",
+          "expected_layer": "None (Pass)",
+          "parameters": {
+            "disturbance": 0.006,
+            "signer": "alice",
+            "verifier": "bob"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "ACCEPT",
+          "detected": false,
+          "primary_layer": "L2",
+          "findings_count": 2,
+          "findings_sample": [
+            {
+              "detector": "QuantumDetector",
+              "severity": "INFO",
+              "description": "Mismatch rate within legitimate bounds.",
+              "metrics": {
+                "mismatch_rate": 0.0,
+                "mismatches": 0,
+                "matched_subset_size": 33,
+                "tau_low": 0.13333333333333333,
+                "tau_high": 0.16666666666666666
+              }
+            },
+            {
+              "detector": "ChannelTomography",
+              "severity": "INFO",
+              "description": "No significant channel disturbance detected.",
+              "metrics": {
+                "attack_type": "CLEAN",
+                "confidence": 0.95,
+                "basis_rates": {
+                  "X": 0.0,
+                  "Y": 0.0,
+                  "Z": 0.0
+                },
+                "chi_square": 0.9269199577628346,
+                "deviation_score": 0.0005162626700046221
+              }
+            }
+          ],
+          "latency_ms": 40.58957099914551,
+          "evidence_id": "evt-1790615624.0905023"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TN",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-7ab9da87-50bc-42c3-9d12-f03e4036cd1b",
+        "timestamp": 1790615624.4095833,
+        "ground_truth": {
+          "type": "impersonation",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (AuthenticationProbe)",
+          "parameters": {
+            "adversary_signer": "oscar"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.60792922973633,
+          "evidence_id": "evt-1790615624.3854496"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-f120260c-61ac-4982-a0ff-544755ce0563",
+        "timestamp": 1790615624.7254825,
+        "ground_truth": {
+          "type": "unauthorized_verifier",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (AuthorizationGuard)",
+          "parameters": {
+            "unauthorized_verifier": "unauthorized_node"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.28892517089844,
+          "evidence_id": "evt-1790615624.7043552"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-2bc23989-803a-45c3-b5cf-cdf18248f09d",
+        "timestamp": 1790615625.0562513,
+        "ground_truth": {
+          "type": "replay",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (FreshnessProbe / NonceGuard)",
+          "parameters": {
+            "replayed_nonce": "nonce-354bc06e-ece9-4b43-9c8b-659697de2b92"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.422677993774414,
+          "evidence_id": "evt-1790615625.01615"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-85032872-1432-41c2-96f8-420d7f178eb5",
+        "timestamp": 1790615625.4159362,
+        "ground_truth": {
+          "type": "double_consumption",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (DoubleConsumptionGuard)",
+          "parameters": {
+            "reused_session": "session-5b565361-8d0d-497e-b0de-401c771e874e"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.544748306274414,
+          "evidence_id": "evt-1790615625.3837926"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-c9e5050e-d0e8-4455-8626-fa35be07deba",
+        "timestamp": 1790615625.6817453,
+        "ground_truth": {
+          "type": "channel_noise",
+          "category": "ATTACK",
+          "expected_verdict": "QUARANTINE",
+          "expected_layer": "L2 (StatisticalProbe / Tomography)",
+          "parameters": {
+            "disturbance": 0.083
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.4202938079834,
+          "evidence_id": "evt-1790615625.6574678"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": false
+        }
+      },
+      {
+        "trial_id": "trial-f7eb46c9-5ce1-4b14-836c-01e95721ef2a",
+        "timestamp": 1790615625.9658525,
+        "ground_truth": {
+          "type": "signature_forgery",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (PQCEnvelope / AuthenticationProbe)",
+          "parameters": {
+            "mutated_signature": true
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.40241241455078,
+          "evidence_id": "evt-1790615625.9414423"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-0da03722-c283-4138-b7f0-2f5d36a32ab6",
+        "timestamp": 1790615626.2833314,
+        "ground_truth": {
+          "type": "quantum_forgery",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L2 (StatisticalProbe)",
+          "parameters": {
+            "quantum_guessing_noise": 0.25
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.50254821777344,
+          "evidence_id": "evt-1790615626.2626884"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-27150fd0-ff45-4884-ad0e-326826755496",
+        "timestamp": 1790615626.6505868,
+        "ground_truth": {
+          "type": "honest",
+          "category": "HONEST",
+          "expected_verdict": "ACCEPT",
+          "expected_layer": "None (Pass)",
+          "parameters": {
+            "disturbance": 0.014,
+            "signer": "alice",
+            "verifier": "bob"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.33780097961426,
+          "evidence_id": "evt-1790615626.6306367"
+        },
+        "evaluation": {
+          "correct": false,
+          "confusion_class": "FP",
+          "match": false
+        }
+      },
+      {
+        "trial_id": "trial-29faceeb-0653-4fb6-851a-3457d1acd312",
+        "timestamp": 1790615626.943677,
+        "ground_truth": {
+          "type": "impersonation",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (AuthenticationProbe)",
+          "parameters": {
+            "adversary_signer": "sybil_attacker"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.358781814575195,
+          "evidence_id": "evt-1790615626.9221742"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-7e56de47-f717-4c83-891d-777f4bc38a2c",
+        "timestamp": 1790615627.2090101,
+        "ground_truth": {
+          "type": "unauthorized_verifier",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (AuthorizationGuard)",
+          "parameters": {
+            "unauthorized_verifier": "mallory_proxy"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 42.448997497558594,
+          "evidence_id": "evt-1790615627.1846826"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      },
+      {
+        "trial_id": "trial-4be56cbd-b0e7-454f-8cbb-e986f09c4262",
+        "timestamp": 1790615627.544069,
+        "ground_truth": {
+          "type": "replay",
+          "category": "ATTACK",
+          "expected_verdict": "REJECT",
+          "expected_layer": "L3 (FreshnessProbe / NonceGuard)",
+          "parameters": {
+            "replayed_nonce": "nonce-b12dbd38-2523-4d3a-8915-9639efd56ec6"
+          }
+        },
+        "detector_result": {
+          "actual_decision": "REJECT",
+          "detected": true,
+          "primary_layer": "None",
+          "findings_count": 1,
+          "findings_sample": [
+            {
+              "detector": "SecurityPolicy",
+              "severity": "REJECT",
+              "description": "Verification rejected by security policy. Contact an authorized auditor for detailed findings.",
+              "metrics": {
+                "tier": "standard_verifier",
+                "findings_redacted": true
+              }
+            }
+          ],
+          "latency_ms": 40.52567481994629,
+          "evidence_id": "evt-1790615627.5060973"
+        },
+        "evaluation": {
+          "correct": true,
+          "confusion_class": "TP",
+          "match": true
+        }
+      }
+    ]
+  },
+  "targeted_scenarios_110_events": {
+    "legitimate": {
+      "category": "Honest Traffic",
+      "expected_outcome": "ACCEPT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT",
+        "ACCEPT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 287.28,
+      "median_latency_ms": 289.05,
+      "p95_latency_ms": 334.81,
+      "std_dev_ms": 22.73,
+      "min_latency_ms": 258.9,
+      "max_latency_ms": 334.81,
+      "observed_mismatch_rate": 0.0,
+      "sample_reason": "Legitimate transmission verified: Mismatch rate D = 0.0000 < tau_low (0.1333) across 38 matched quantum key bits. ML-DSA-65 envelope valid. Decision: ACCEPT.",
+      "primary_layer": "None (Pass)"
+    },
+    "forgery": {
+      "category": "Quantum Key Tampering",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 308.87,
+      "median_latency_ms": 300.87,
+      "p95_latency_ms": 348.94,
+      "std_dev_ms": 22.01,
+      "min_latency_ms": 284.43,
+      "max_latency_ms": 348.94,
+      "observed_mismatch_rate": 0.3122,
+      "sample_reason": "Valid ML-DSA-65 envelope detected, but quantum key mutation resulted in mismatch rate D = 0.1667 (5/30 bits), exceeding tau_high (0.1667). Forgery B caught at Layer 2.",
+      "primary_layer": "L2 (StatisticalProbe)"
+    },
+    "replay": {
+      "category": "Cryptographic Replay",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 497.32,
+      "median_latency_ms": 360.92,
+      "p95_latency_ms": 1696.18,
+      "std_dev_ms": 422.19,
+      "min_latency_ms": 319.56,
+      "max_latency_ms": 1696.18,
+      "observed_mismatch_rate": 0.0,
+      "sample_reason": "Cryptographic replay detected: Nonce 'nonce-03be3acc-311...' was already registered for session 'session-ceba0b91-5...'. Re-transmission immediately blocked at Layer 3 NonceGuard.",
+      "primary_layer": "L3 (FreshnessProbe / NonceGuard)"
+    },
+    "impersonation": {
+      "category": "Identity Forgery",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 321.98,
+      "median_latency_ms": 317.89,
+      "p95_latency_ms": 389.7,
+      "std_dev_ms": 29.23,
+      "min_latency_ms": 283.01,
+      "max_latency_ms": 389.7,
+      "observed_mismatch_rate": 0.0,
+      "sample_reason": "Adversary Mallory attempted session forgery claiming Alice's identity. ML-DSA-65 post-quantum signature verification failed against Alice's public key in the identity registry. Intercepted and rejected at Layer 3 Identity Guard.",
+      "primary_layer": "L3 (AuthenticationProbe / IdentityGuard)"
+    },
+    "unauthorized": {
+      "category": "Unauthorized Node",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 308.22,
+      "median_latency_ms": 301.2,
+      "p95_latency_ms": 368.7,
+      "std_dev_ms": 30.29,
+      "min_latency_ms": 277.32,
+      "max_latency_ms": 368.7,
+      "observed_mismatch_rate": null,
+      "sample_reason": "Target verifier node 'foreign_listener' is not present in authorized federated station registry. Access rejected at Layer 3 Authorization Guard prior to quantum distribution.",
+      "primary_layer": "L3 (AuthorizationGuard)"
+    },
+    "channel_high_noise": {
+      "category": "Severe Channel Disturbance",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "QUARANTINE",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "REJECT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 318.35,
+      "median_latency_ms": 321.86,
+      "p95_latency_ms": 374.17,
+      "std_dev_ms": 31.47,
+      "min_latency_ms": 272.87,
+      "max_latency_ms": 374.17,
+      "observed_mismatch_rate": 0.1832,
+      "sample_reason": "Depolarizing channel disturbance (p=0.25) produced high mismatch rate D = 0.2353 > tau_high (0.1667). Symmetrically degraded channel rejected at Layer 2.",
+      "primary_layer": "L2 (StatisticalProbe / Tomography)"
+    },
+    "channel_quarantine": {
+      "category": "Marginal Channel Noise",
+      "expected_outcome": "QUARANTINE",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "REJECT",
+        "QUARANTINE",
+        "QUARANTINE",
+        "REJECT",
+        "QUARANTINE",
+        "REJECT",
+        "QUARANTINE",
+        "REJECT",
+        "QUARANTINE",
+        "QUARANTINE"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 442.72,
+      "median_latency_ms": 315.55,
+      "p95_latency_ms": 1623.48,
+      "std_dev_ms": 415.87,
+      "min_latency_ms": 275.48,
+      "max_latency_ms": 1623.48,
+      "observed_mismatch_rate": 0.2091,
+      "sample_reason": "Depolarizing channel disturbance (p=0.25) produced elevated mismatch rate D = 0.2051 between tau_low (0.1786) and tau_high (0.2500). Channel placed in QUARANTINE.",
+      "primary_layer": "L2 (StatisticalProbe / Tomography)"
+    },
+    "adaptive_x": {
+      "category": "Coherent Basis Rotation",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE",
+        "QUARANTINE"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 314.64,
+      "median_latency_ms": 315.0,
+      "p95_latency_ms": 362.4,
+      "std_dev_ms": 23.06,
+      "min_latency_ms": 280.19,
+      "max_latency_ms": 362.4,
+      "observed_mismatch_rate": 0.1147,
+      "sample_reason": "Coherent transverse Pauli-X rotation (theta=0.25 rad) placed mismatch rate D = 0.1250 in quarantine band [0.1786, 0.2500]. Quarantined for basis asymmetry.",
+      "primary_layer": "L2 (Pauli Tomography / StatisticalProbe)"
+    },
+    "ledger_tamper": {
+      "category": "Ledger Database Mutation",
+      "expected_outcome": "INTEGRITY_VIOLATION",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION",
+        "INTEGRITY_VIOLATION"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 43.89,
+      "median_latency_ms": 41.64,
+      "p95_latency_ms": 54.83,
+      "std_dev_ms": 5.71,
+      "min_latency_ms": 39.19,
+      "max_latency_ms": 54.83,
+      "observed_mismatch_rate": null,
+      "sample_reason": "Ledger integrity audit: Direct out-of-band SQLite record mutation on sequence #1320 altered decision from 'QUARANTINE' to 'ACCEPT'. Cryptographic HMAC-SHA256 hash-chain linkage broke at block #1320.",
+      "primary_layer": "L4 (EvidenceLedger HMAC & Hash Chain)"
+    },
+    "timing_oracle": {
+      "category": "Side-Channel Timing Probe",
+      "expected_outcome": "SECURE",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE",
+        "SECURE"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 2378.9,
+      "median_latency_ms": 2373.56,
+      "p95_latency_ms": 2458.31,
+      "std_dev_ms": 38.14,
+      "min_latency_ms": 2337.03,
+      "max_latency_ms": 2458.31,
+      "observed_mismatch_rate": null,
+      "sample_reason": "Side-channel timing probe: Latency delta between early-rejection envelope (46.1ms) and deep quantum verification (44.6ms) is delta = 1.5ms (variance < 500ms bound). Constant-time execution prevents timing side-channel exploitation.",
+      "primary_layer": "Constant-Time Latency Guard"
+    },
+    "transferability": {
+      "category": "Cross-Recipient State Forgery",
+      "expected_outcome": "REJECT",
+      "trials_run": 10,
+      "actual_outcomes": [
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT",
+        "REJECT"
+      ],
+      "detection_rate_pct": 100.0,
+      "mean_latency_ms": 647.17,
+      "median_latency_ms": 523.23,
+      "p95_latency_ms": 1832.75,
+      "std_dev_ms": 417.47,
+      "min_latency_ms": 476.69,
+      "max_latency_ms": 1832.75,
+      "observed_mismatch_rate": 0.3254,
+      "sample_reason": "Transferability attack evaluated: Recipient Bob accepted signed message (verdict: ACCEPT), but when re-forwarded to recipient Charlie with forged key subset, Charlie's dual-threshold test rejected it (verdict: REJECT). Cross-recipient non-transferability invariant successfully preserved.",
+      "primary_layer": "L2 (Dual-Threshold Transferability Guard)"
+    }
+  },
+  "ledger_audit": {
+    "total_records_checked": 1299,
+    "audit_latency_ms": 32.1,
+    "per_record_us": 24.71,
+    "chain_valid": true
+  }
+}
