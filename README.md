@@ -233,6 +233,18 @@ python -m experiments.blind_eval
 
 ---
 
+## Documentation
+Full project documentation, including the presentation, technical architecture, and business/revenue model, is available in the shared drive below:
+
+ **[Project Documentation Drive](https://drive.google.com/drive/folders/1Qv2ODWIb1r9kRAEPLk8XnhdHGCMdam36?usp=drive_link)**
+
+The folder includes:
+
+- **[Q-SENTINEL_PPT.pptx](YOUR_DRIVE_LINK_HERE)** — SIH 2026 pitch presentation covering the problem, solution, architecture, and feasibility.
+- **[Technical_Documentation.pdf](https://drive.google.com/file/d/18DWw-KkUyosim7kk5DksfcNplKBu-trj/view)** — Detailed system architecture, layer-by-layer design (L1–L4), API specifications, and implementation notes.
+- **[Revenue_Model.pdf](https://drive.google.com/file/d/1hdsqPZ3kmr2xrI1IYTyuA1WUFuWdKytp/view)** — Market analysis, target audience, and monetization strategy.
+
+
 ## License
 
 Academic project for SIH 2026.
