@@ -236,13 +236,11 @@ python -m experiments.blind_eval
 ## Documentation
 Full project documentation, including the presentation, technical architecture, and business/revenue model, is available in the shared drive below:
 
- **[Project Documentation Drive](https://drive.google.com/drive/folders/1Qv2ODWIb1r9kRAEPLk8XnhdHGCMdam36?usp=drive_link)**
+ **[Project Documentation Drive](https://drive.google.com/drive/folders/1qm36PAI3MskG7pw1gDswAIl0792IsLxc?usp=sharing)**
 
-The folder includes:
-
-- **[Q-SENTINEL_PPT.pptx](https://drive.google.com/file/d/1M8R3hr7nJN7HXzmfrvb57GnUYWKE7807/view?usp=drive_link)** — SIH 2026 pitch presentation covering the problem, solution, architecture, and feasibility.
-- **[Technical_Documentation.pdf](https://drive.google.com/file/d/18DWw-KkUyosim7kk5DksfcNplKBu-trj/view)** — Detailed system architecture, layer-by-layer design (L1–L4), API specifications, and implementation notes.
-- **[Revenue_Model.pdf](https://drive.google.com/file/d/1hdsqPZ3kmr2xrI1IYTyuA1WUFuWdKytp/view)** — Market analysis, target audience, and monetization strategy.
+- **[Q-SENTINEL_PPT.pptx](https://drive.google.com/file/d/1wp1IDnxpJ9kfo-L8OLQrMGFDohYP9HwY/view?usp=sharing)** — SIH 2026 pitch presentation covering the problem, solution, architecture, and feasibility.
+- **[Technical_Documentation.pdf](https://drive.google.com/file/d/18k2cLtLFTbonDUKj4NJXL8etGLVbasUE/view?usp=sharing)** — Detailed system architecture, layer-by-layer design (L1–L4), API specifications, and implementation notes.
+- **[Revenue_Model.pdf](https://drive.google.com/file/d/12zOy9fk8kGxO5DIEtVywxqwFwSICIjs5/view?usp=sharing)** — Market analysis, target audience, and monetization strategy.
 
 
 ## License
