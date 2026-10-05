@@ -238,7 +238,7 @@ Full project documentation, including the presentation, technical architecture, 
 
  **[Project Documentation Drive](https://drive.google.com/drive/folders/1qm36PAI3MskG7pw1gDswAIl0792IsLxc?usp=sharing)**
 
-- **[Q-SENTINEL_PPT.pptx](https://drive.google.com/file/d/1wp1IDnxpJ9kfo-L8OLQrMGFDohYP9HwY/view?usp=sharing)** — SIH 2026 pitch presentation covering the problem, solution, architecture, and feasibility.
+- **[Q-SENTINEL_PPT.pptx](https://drive.google.com/file/d/16zpzNLx27rOlD3cbGsC6wqt1jbE2qDFb/view?usp=sharing)** — SIH 2026 pitch presentation covering the problem, solution, architecture, and feasibility.
 - **[Technical_Documentation.pdf](https://drive.google.com/file/d/18k2cLtLFTbonDUKj4NJXL8etGLVbasUE/view?usp=sharing)** — Detailed system architecture, layer-by-layer design (L1–L4), API specifications, and implementation notes.
 - **[Revenue_Model.pdf](https://drive.google.com/file/d/12zOy9fk8kGxO5DIEtVywxqwFwSICIjs5/view?usp=sharing)** — Market analysis, target audience, and monetization strategy.
 
